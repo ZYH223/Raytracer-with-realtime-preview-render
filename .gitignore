@@ -3,4 +3,7 @@
 *.vcxproj.*
 /Debug
 /Release
+/**/Debug
+/**/Release
+/**/Output
 /.vs

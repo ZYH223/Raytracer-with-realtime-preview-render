@@ -21,7 +21,7 @@ OrthographicCamera::OrthographicCamera(Vec3f c, Vec3f d, Vec3f u, float s)
 	direction.Normalize();
 	up = (u - (u.Dot3(direction))*direction);
 	up.Normalize();
-	assert(-0.0001f <= direction.Dot3(up) && direction.Dot3(up) <= 0.0001f);
+	assert(fabs(direction.Dot3(up)) < DIFF);
 	Vec3f::Cross3(horizontal, direction, up);
 	//Vec3f::Cross3(horizontal, direction, up);
 }
@@ -32,4 +32,27 @@ Ray OrthographicCamera::generateRay(Vec2f point)
 	return Ray(
 		(point.x() * size - size / 2.0f)*horizontal + (point.y() * size - size / 2.0f)*up + center,
 		direction);
+}
+
+PerspectiveCamera::PerspectiveCamera(Vec3f c, Vec3f d, Vec3f u, float a)
+{
+	tmin = 0;
+	center = c;
+	fov = a;
+	direction = d;
+	direction.Normalize();
+	up = (u - (u.Dot3(direction))*direction);
+	up.Normalize();
+	assert(fabs(direction.Dot3(up)) < DIFF);
+	Vec3f::Cross3(horizontal, direction, up);
+}
+
+Ray PerspectiveCamera::generateRay(Vec2f point)
+{
+	VerifyScreenCoordinate(point);
+	Vec3f dir = (point.x() - 0.5f) * tan(fov) * horizontal + (point.y() - 0.5f) * tan(fov) * up + direction;
+	dir.Normalize();
+	return Ray(
+		center,
+		dir);
 }

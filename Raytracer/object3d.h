@@ -2,6 +2,7 @@
 #ifndef _OBJECT3D_H_
 #define _OBJECT3D_H_
 
+#include "constant.h"
 #include "ray.h"
 #include "hit.h"
 #include "material.h"
