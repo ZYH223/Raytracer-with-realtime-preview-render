@@ -8,12 +8,14 @@
 class Group : public Object3D
 {
 public:
-	Object3D **list;
-	int list_size;
 	Group() {}
 	~Group();
 	Group(int n);
 	void addObject(int index, Object3D *obj);
 	virtual bool intersect(const Ray &r, Hit &h, float tmin, float tmax);
+	virtual void paint(void);
+protected:
+	int list_size;
+	Object3D **list;
 };
 #endif // !GROUP_H

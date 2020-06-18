@@ -1,30 +1,19 @@
 #include <iostream>
-#include "scene_parser.h"
-#include "image.h"
-#include "light.h"
-#include "ray.h"
-#include "hit.h"
-#include "group.h"
-#include "camera.h"
-#include "matrix.h"
+#include "glCanvas.h"
+#include "rayTracer.h"
 using namespace std;
-const bool DEBUG = false;
+const bool DEBUG = true;
 const bool DEBUG_LOG = false;
 
-int main(int argc, char *argv[]) {
-	char *input_file = nullptr;
-	int width = 100;
-	int height = 100;
-	char *output_file = nullptr;
-	float depth_min = -FLT_MAX;
-	float depth_max = FLT_MAX;
-	char *depth_file = nullptr;
-	char *normal_file = nullptr;
-	bool diffuse_mode = false, depth_mode = false, normal_mode = false, shade_back = false;
-
-	// sample command line:
-	// raytracer -input scene1_1.txt -size 200 200 -output output1_1.tga -depth 9 10 depth1_1.tga
-
+void handleParameter(
+	int &argc, char *argv[],
+	char *input_file,
+	int &width, int &height,
+	char *output_file,
+	char *depth_file, float &depth_min, float &depth_max,
+	char *normal_file,
+	bool &diffuse_mode, bool &depth_mode, bool &normal_mode, bool &shade_back)
+{
 	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "-input")) {
 			i++; assert(i < argc);
@@ -63,22 +52,40 @@ int main(int argc, char *argv[]) {
 			assert(0);
 		}
 	}
+}
+
+void rayTracerRender()
+{
+	RayTracer::getInstance().render();
+}
+
+int main(int argc, char *argv[]) {
+	char *input_file = nullptr;
+	int width = 100;
+	int height = 100;
+	char *output_file = nullptr;
+	float depth_min = -FLT_MAX;
+	float depth_max = FLT_MAX;
+	char *depth_file = nullptr;
+	char *normal_file = nullptr;
+	bool output_mode = false, depth_mode = false, normal_mode = false, shade_back = false;
+
 	// 以下用于调试程序时模拟输入参数
 	if (DEBUG) 
 	{
 		const int filename_buffer_length = 64;
 		input_file = new char[filename_buffer_length];
-		strcpy_s(input_file, filename_buffer_length, "Input/scene2_05_inside_sphere.txt");
+		strcpy_s(input_file, filename_buffer_length, "Input/scene3_01_cube_orthographic.txt");
 		width = 200, height = 200;
 		if (DEBUG_LOG) 
 		{
 			width = 32, height = 32;
 		}
-		diffuse_mode = true, depth_mode = false, normal_mode = false, shade_back = true;
-		if (diffuse_mode) 
+		output_mode = true, depth_mode = false, normal_mode = false, shade_back = false;
+		if (output_mode) 
 		{
 			output_file = new char[filename_buffer_length];
-			strcpy_s(output_file, filename_buffer_length, "Output/output2_05.tga");
+			strcpy_s(output_file, filename_buffer_length, "Output/output3_01.tga");
 		}
 		if (depth_mode) 
 		{
@@ -93,76 +100,20 @@ int main(int argc, char *argv[]) {
 			strcpy_s(normal_file, filename_buffer_length, "Output/normals2_05.tga");
 		}
 	}
-
-	SceneParser scene(input_file);
-	Image image(width, height);
-	Image image_depth(width, height);
-	Image image_normal(width, height);
-	for (int i = 0; i < width; i++)
+	else // 从控制台输入参数
 	{
-		for (int j = 0; j < height; j++)
-		{
-			/*if (i == 31 && j == 0) {
-				cout << "start" << endl;
-			}*/
-			Vec3f color = scene.getBackgroundColor(), normal = Vec3f();
-			Ray r = scene.getCamera()->generateRay(Vec2f(i / (float)width, j / (float)height));
-			Hit h(depth_max, nullptr, Vec3f());
-			if (DEBUG_LOG)cout << Vec3f(i, j, 0) << ":" << r << " intersect with ";
-			if (scene.getGroup()->intersect(r, h, scene.getCamera()->getTMin(), FLT_MAX))
-			{
-				if (DEBUG_LOG)cout << h.getIntersectionPoint() << " and return " << h << endl;
-				assert(h.getMaterial() != nullptr);
-
-				// shade_back
-				normal = h.getNormal();
-				if (shade_back)
-				{
-					if (r.getDirection().Dot3(normal) > 0)
-					{
-						normal.Negate();
-					}
-				}
-
-				// 计算颜色
-				color = scene.getAmbientLight() * h.getMaterial()->getDiffuseColor();// 计算环境光
-				int numLights = scene.getNumLights();
-				for (int i = 0; i < numLights; i++)// 计算每个光源的漫反射分量
-				{
-					Light* light = scene.getLight(i);
-					Vec3f p = h.getIntersectionPoint(), dir, col;
-					light->getIllumination(p, dir, col);
-					float d = dir.Dot3(normal);
-					if (d > 0)// d<=0时没有漫反射分量
-					{
-						color += h.getMaterial()->getDiffuseColor() * d * col;
-					}
-				}
-			}
-			else
-			{
-				if (DEBUG_LOG)cout << "nothing" << endl;
-			}
-			if (diffuse_mode) 
-			{
-				image.SetPixel(i, j, color);
-			}
-			if (depth_mode)
-			{
-				float depth = 1.0f - (h.getT() - depth_min) / (depth_max - depth_min);
-				image_depth.SetPixel(i, j, Vec3f(depth, depth, depth));
-			}
-			if (normal_mode)
-			{
-				Vec3f n = normal;
-				n.Set(fabs(n.r()), fabs(n.g()), fabs(n.b()));
-				image_normal.SetPixel(i, j, n);
-			}
-		}
+		handleParameter(argc, argv, input_file, width, height, output_file, depth_file, depth_min, depth_max, normal_file, output_mode, depth_mode, normal_mode, shade_back);
 	}
-	if (diffuse_mode)image.SaveTGA(output_file);
-	if (depth_mode)image_depth.SaveTGA(depth_file);
-	if (normal_mode)image_normal.SaveTGA(normal_file);
+
+	SceneParser *scene = new SceneParser(input_file);
+	RayTracer *raytracer = &(RayTracer::getInstance());
+	raytracer->initialize(width, height, scene);
+	if (output_mode)raytracer->setOutput(output_file, shade_back);
+	if (depth_mode)raytracer->setDepth(depth_file, depth_min, depth_max);
+	if (normal_mode)raytracer->setNormal(normal_file);
+	if (DEBUG_LOG)raytracer->setDebugMode(1);
+	GLCanvas *canvas = new GLCanvas();
+	canvas->initialize(scene, rayTracerRender);
 
 	if (DEBUG)
 	{
@@ -171,5 +122,8 @@ int main(int argc, char *argv[]) {
 		delete[] depth_file;
 		system("pause");
 	}
+	delete scene;
+	//delete raytracer; 改为单例后不需要手动释放
+	delete canvas;
 	return 0;
 }

@@ -8,10 +8,14 @@ Transform::Transform(Matrix& m, Object3D* o)
 	inversedMatrix.Inverse(DIFF);
 	transposedInversedMatrix = inversedMatrix;
 	transposedInversedMatrix.Transpose();
+
+	// calculate data for OpenGL
+	glMatrix = matrix.glGet();
 }
 
 Transform::~Transform()
 {
+	delete[] glMatrix;
 	delete object;
 }
 
@@ -36,4 +40,12 @@ bool Transform::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 		return true;
 	}
 	return false;
+}
+
+void Transform::paint(void)
+{
+	glPushMatrix();
+	glMultMatrixf(glMatrix);
+	object->paint();
+	glPopMatrix();
 }

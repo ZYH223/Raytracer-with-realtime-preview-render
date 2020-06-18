@@ -48,3 +48,10 @@ bool Group::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 	}
 	return hit_something;
 }
+
+void Group::paint(void) {
+	for (int i = 0; i < list_size; i++)
+	{
+		list[i]->paint();
+	}
+}

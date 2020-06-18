@@ -10,7 +10,8 @@ Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m)
 
 Triangle::~Triangle()
 {
-	delete material;
+	//ÊÍ·ÅÄÚ´æµÄ¹¤×÷½»¸øscene_parserÀ´×ö
+	//delete material;
 }
 
 bool Triangle::intersect(const Ray &r, Hit &h, float tmin, float tmax)// ÏÈÓëÆ½ÃæÇó½»
@@ -34,4 +35,19 @@ bool Triangle::intersect(const Ray &r, Hit &h, float tmin, float tmax)// ÏÈÓëÆ½Ã
 		}
 	}
 	return false;
+}
+
+void Triangle::paint(void) 
+{
+	// shading
+	material->glSetMaterial();
+	// geometry
+	glBegin(GL_TRIANGLES);
+	glVertex3f(a.x(), a.y(), a.z());
+	glVertex3f(b.x(), b.y(), b.z());
+	glVertex3f(c.x(), c.y(), c.z());
+	Vec3f normal;
+	Vec3f::Cross3(normal, b - a, c - b);
+	glNormal3f(normal.x(), normal.y(), normal.z());
+	glEnd();
 }

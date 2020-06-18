@@ -1,4 +1,5 @@
 #define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <string.h>
 #define _USE_MATH_DEFINES
@@ -45,7 +46,7 @@ SceneParser::SceneParser(const char* filename) {
   fclose(file); 
   file = NULL;
 
-  // if no lights are specified, set ambient light to white
+  // if no lights are specified, set ambient light to white 
   // (do solid color ray casting)
   if (num_lights == 0) {
     printf ("WARNING:  No lights specified\n");
@@ -204,9 +205,8 @@ void SceneParser::parseMaterials() {
   int count = 0;
   while (num_materials > count) {
     getToken(token); 
-    if (!strcmp(token, "Material") ||
-        !strcmp(token, "PhongMaterial")) {
-      materials[count] = parsePhongMaterial();
+    if (!strcmp(token, "Material")) {
+      materials[count] = parseMaterial();
     } else {
       printf ("Unknown token in parseMaterial: '%s'\n", token); 
       exit(0);
@@ -217,26 +217,20 @@ void SceneParser::parseMaterials() {
 }  
 
 
-Material* SceneParser::parsePhongMaterial() {
+Material* SceneParser::parseMaterial() {
   char token[MAX_PARSER_TOKEN_LENGTH];
   Vec3f diffuseColor(1,1,1);
-  Vec3f specularColor(0,0,0);
-  float exponent = 1;
   getToken(token); assert (!strcmp(token, "{"));
   while (1) {
     getToken(token); 
     if (!strcmp(token, "diffuseColor")) {
       diffuseColor = readVec3f();
-    } else if (!strcmp(token, "specularColor")) {
-      specularColor = readVec3f();
-    } else if  (!strcmp(token, "exponent")) {
-      exponent = readFloat();
     } else {
       assert (!strcmp(token, "}"));
       break;
     }
   }
-  Material *answer = new PhongMaterial(diffuseColor,specularColor,exponent);
+  Material *answer = new Material(diffuseColor);
   return answer;
 }
 
@@ -353,6 +347,7 @@ Triangle* SceneParser::parseTriangle() {
   return new Triangle(v0,v1,v2,current_material);
 }
 
+
 Group* SceneParser::parseTriangleMesh() {
   char token[MAX_PARSER_TOKEN_LENGTH];
   char filename[MAX_PARSER_TOKEN_LENGTH];
@@ -468,6 +463,7 @@ Transform* SceneParser::parseTransform() {
   getToken(token); assert (!strcmp(token, "}"));
   return new Transform(matrix, object);
 }
+
 
 // ====================================================================
 // ====================================================================
