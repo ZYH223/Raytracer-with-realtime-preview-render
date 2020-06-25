@@ -2,6 +2,9 @@
 #define _MATERIAL_H_
 
 #include "vectors.h"
+#include "constant.h"
+#include "ray.h"
+#include "hit.h"
 
 // ====================================================================
 // ====================================================================
@@ -19,6 +22,7 @@ public:
 
   // ACCESSORS
   virtual Vec3f getDiffuseColor() const { return diffuseColor; }
+  virtual Vec3f Shade (const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const = 0;
   virtual void glSetMaterial(void) const = 0;
 
 protected:
@@ -32,6 +36,7 @@ class PhongMaterial:public Material {
 public:
 	PhongMaterial(Vec3f &d_color, Vec3f &s_color, float e):Material(d_color),specularColor(s_color),exponent(e) {}
 	~PhongMaterial() {}
+	Vec3f Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const;
 	Vec3f getSpecularColor() const { return specularColor; }
 	void glSetMaterial(void) const;
 protected:

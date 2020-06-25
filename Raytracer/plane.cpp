@@ -14,9 +14,9 @@ Plane::Plane(Vec3f &n, float d, Material *m)
 	b1.Normalize(); b2.Normalize();
 	size = 0xffff;// 65535 < 10^6
 	Vec3f point[4] = { (normal * distance - size * b1 - size * b2),
-		(normal * distance - size * b1 + size * b2),
 		(normal * distance + size * b1 - size * b2),
-		(normal * distance + size * b1 + size * b2)
+		(normal * distance + size * b1 + size * b2),
+		(normal * distance - size * b1 + size * b2)
 	};
 	for (int i = 0; i < 4; i++) 
 	{

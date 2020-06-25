@@ -43,11 +43,11 @@ void Triangle::paint(void)
 	material->glSetMaterial();
 	// geometry
 	glBegin(GL_TRIANGLES);
-	glVertex3f(a.x(), a.y(), a.z());
-	glVertex3f(b.x(), b.y(), b.z());
-	glVertex3f(c.x(), c.y(), c.z());
 	Vec3f normal;
 	Vec3f::Cross3(normal, b - a, c - b);
 	glNormal3f(normal.x(), normal.y(), normal.z());
+	glVertex3f(a.x(), a.y(), a.z());
+	glVertex3f(b.x(), b.y(), b.z());
+	glVertex3f(c.x(), c.y(), c.z());
 	glEnd();
 }

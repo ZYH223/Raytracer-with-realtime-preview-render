@@ -53,9 +53,9 @@ void OrthographicCamera::glInit(int w, int h)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	if (w > h)
-		glOrtho(-size / 2.0, size / 2.0, -size * (float)h / (float)w / 2.0, size*(float)h / (float)w / 2.0, 0.5, 40.0);
+		glOrtho(-size / 2.0, size / 2.0, -size * (float)h / (float)w / 2.0, size*(float)h / (float)w / 2.0, 0.5, 400.0);
 	else
-		glOrtho(-size * (float)w / (float)h / 2.0, size*(float)w / (float)h / 2.0, -size / 2.0, size / 2.0, 0.5, 40.0);
+		glOrtho(-size * (float)w / (float)h / 2.0, size*(float)w / (float)h / 2.0, -size / 2.0, size / 2.0, 0.5, 400.0);
 }
 
 // ====================================================================
@@ -194,7 +194,7 @@ void PerspectiveCamera::glInit(int w, int h)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glm::mat4 projection = glm::mat4(1.0f);
-	projection = glm::perspective(glm::radians(fov), (float)w / float(h), 0.5f, 40.0f);
+	projection = glm::perspective(fov, (float)w / (float)h, 0.5f, 40.0f);
 	glMultMatrixf(glm::value_ptr(projection));
 	//gluPerspective(angle*180.0 / 3.14159, (float)w / float(h), 0.5, 40.0);
 }

@@ -1,4 +1,9 @@
+#define _USE_MATH_DEFINES
+#include <math.h>
+#define deg2rad(x) ((M_PI * x) / 180.0f)
 #include "sphere.h"
+float Sphere::theta, Sphere::phi;// data for tessellation
+bool Sphere::gouraud;
 
 Sphere::Sphere(Vec3f c, float r, Material* m)
 {
@@ -8,8 +13,8 @@ Sphere::Sphere(Vec3f c, float r, Material* m)
 	material = m;
 
 	// default initiallize the parameters for tessellation
-	theta = 36.0f;
-	phi = 18.0f;
+	/*theta = deg2rad(36.0f);
+	phi = deg2rad(18.0f);*/
 }
 
 Sphere::~Sphere()
@@ -76,11 +81,11 @@ bool Sphere::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 #pragma endregion
 }
 
-void Sphere::SetTessellationParameters(float theta, float phi, bool gouraud = false)
+void Sphere::SetTessellationParameters(int theta_step, int phi_step, bool isgouraud = false)
 {
-	this->theta = theta;
-	this->phi = phi;
-	this->gouraud = gouraud;
+	Sphere::theta = deg2rad(360.0f/ theta_step);
+	Sphere::phi = deg2rad(180.0f/phi_step);
+	Sphere::gouraud = isgouraud;
 }
 
 void Sphere::paint(void)
@@ -89,38 +94,76 @@ void Sphere::paint(void)
 	material->glSetMaterial();
 	// geometry
 	glBegin(GL_QUADS);
-	for (float iPhi = -90.0f; iPhi <= 90.0f; iPhi += phi)
+	for (float iPhi = deg2rad (-90.0f); iPhi <= deg2rad(90.0f); iPhi += phi)
 	{// defined as pitch in [-90,90](from the positive part of y axis to the negative one)
-		for (float iTheta = 0.0f; iTheta < 360.0f; iTheta += theta)
+		for (float iTheta = deg2rad(0.0f); iTheta < deg2rad(360.0f); iTheta += theta)
 		{// defined as yaw in [0,360)(from the positive part of x axis and rotate counter-clockwisely)
-			// compute appropriate coordinates & normals
-			float nx = cos(iTheta)*cos(iPhi), ny = sin(iTheta)*cos(iPhi), nz = sin(iPhi);
-			Vec3f normal = Vec3f(nx, ny, nz), b1, b2;
-			if (normal == Vec3f(1.0f, 0.0f, 0.0f)) Vec3f::Cross3(b1, normal, Vec3f(0.0f, 1.0f, 0.0f));
-			else Vec3f::Cross3(b1, normal, Vec3f(1.0f, 0.0f, 0.0f));
-			Vec3f::Cross3(b2, normal, b1);
-			b1.Normalize(); b2.Normalize();
-			float height = radius * sin(phi / 2), width = radius * sin(theta / 2);
-			Vec3f point[4] = { (normal * center.Length() - width * b1 - height * b2),
-				(normal * center.Length() - width * b1 + height * b2),
-				(normal * center.Length() + width * b1 - height * b2),
-				(normal * center.Length() + width * b1 + height * b2)
+			//// compute appropriate coordinates & normals
+			//float nx = cos(iTheta)*cos(iPhi), ny = sin(iTheta)*cos(iPhi), nz = sin(iPhi);
+			//Vec3f normal = Vec3f(nx, ny, nz), b1, b2;
+			//if (normal == Vec3f(1.0f, 0.0f, 0.0f)) Vec3f::Cross3(b1, normal, Vec3f(0.0f, 1.0f, 0.0f));
+			//else Vec3f::Cross3(b1, normal, Vec3f(1.0f, 0.0f, 0.0f));
+			//Vec3f::Cross3(b2, normal, b1);
+			//b1.Normalize(); b2.Normalize();
+			////float height = 0.1*radius * sin(phi / 2), width = 0.1*radius * sin(theta / 2);
+			//float k = sqrt(sin(iPhi + phi / 2)*sin(iPhi + phi / 2)*tan(theta / 2)*tan(theta / 2) + tan(phi / 2)*tan(phi / 2));
+			//float D = (sqrt(k*k + 4 * radius*radius) - k) / 2;
+			//float width = sin(iPhi + phi / 2)*tan(theta / 2)*D, height = tan(phi / 2) * D;
+			//Vec3f point[4] = { center + (normal * center.Length() - width * b1 - height * b2),
+			//	center + (normal * D + width * b1 - height * b2),
+			//	center + (normal * D + width * b1 + height * b2),
+			//	center + (normal * D - width * b1 + height * b2)
+			//};
+			float nx = 0.0f, ny = 0.0f, nz = 0.0f;
+			GLfloat point[4][3] = 
+			{ 
+				{ sin(iTheta)*cos(iPhi), sin(iPhi), cos(iTheta)*cos(iPhi) },
+				{ sin(iTheta)*cos(iPhi + phi), sin(iPhi + phi), cos(iTheta)*cos(iPhi + phi) },
+				{ sin(iTheta + theta)*cos(iPhi + phi), sin(iPhi + phi), cos(iTheta + theta)*cos(iPhi + phi) },
+				{ sin(iTheta + theta)*cos(iPhi), sin(iPhi), cos(iTheta + theta)*cos(iPhi) }
 			};
+			// 直接用坐标计算的法线需要经过翻转才能正常显示
+			GLfloat normal[4][3];
+			for (int i = 0; i < 4; i++)
+			{
+				for (int j = 0; j < 3; j++)
+				{
+					normal[i][j] = -point[i][j];
+				}
+			}
+			for (int i = 0; i < 4; i++)
+			{
+				nx += point[i][0] / 4;
+				ny += point[i][1] / 4;
+				nz += point[i][2] / 4;
+				point[i][0] = radius * point[i][0] + center.x();
+				point[i][1] = radius * point[i][1] + center.y();
+				point[i][2] = radius * point[i][2] + center.z();
+			}
+			float l = sqrt(nx * nx + ny * ny + nz * nz);
+			nx = -nx / l, ny = -ny / l, nz = -nz / l;
 
 			// send gl vertex commands
 			if (gouraud) 
 			{
 				for (int i = 0; i < 4; i++) 
 				{
-					glNormal3f((point[i].x() - center.x()) / radius, (point[i].y() - center.y()) / radius, (point[i].z() - center.z()) / radius);
-					glVertex3f(point[i].x(), point[i].y(), point[i].z());
+					glNormal3fv(normal[i]);
+					glVertex3fv(point[i]);
+					/*glNormal3f((point[i].x() - center.x()) / radius, (point[i].y() - center.y()) / radius, (point[i].z() - center.z()) / radius);
+					glVertex3f(point[i].x(), point[i].y(), point[i].z());*/
 				}
 			}
 			else 
 			{
 				glNormal3f(nx, ny, nz);
 				for (int i = 0; i < 4; i++)
-					glVertex3f(point[i].x(), point[i].y(), point[i].z());
+				{
+					glVertex3fv(point[i]);
+				}
+				/*glNormal3f(nx, ny, nz);
+				for (int i = 0; i < 4; i++)
+					glVertex3f(point[i].x(), point[i].y(), point[i].z());*/
 			}
 		}
 	}

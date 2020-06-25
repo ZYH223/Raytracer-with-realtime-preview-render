@@ -1,18 +1,21 @@
 #include <iostream>
 #include "glCanvas.h"
 #include "rayTracer.h"
+#include "Sphere.h"
 using namespace std;
-const bool DEBUG = true;
+const bool DEBUG = false;
 const bool DEBUG_LOG = false;
 
 void handleParameter(
 	int &argc, char *argv[],
-	char *input_file,
+	char *&input_file,
 	int &width, int &height,
-	char *output_file,
-	char *depth_file, float &depth_min, float &depth_max,
-	char *normal_file,
-	bool &diffuse_mode, bool &depth_mode, bool &normal_mode, bool &shade_back)
+	char *&output_file,
+	char *&depth_file, float &depth_min, float &depth_max,
+	char *&normal_file,
+	bool &diffuse_mode, bool &depth_mode, bool &normal_mode, bool &shade_back,
+	int &theta, int &phi,
+	bool &gui, bool &gouraud)
 {
 	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "-input")) {
@@ -47,6 +50,18 @@ void handleParameter(
 		else if (!strcmp(argv[i], "-shade_back")) {
 			shade_back = true;
 		}
+		else if (!strcmp(argv[i], "-gui")) {
+			gui = true;
+		}
+		else if (!strcmp(argv[i], "-tessellation")) {
+			i++; assert(i < argc);
+			theta = atoi(argv[i]);
+			i++; assert(i < argc);
+			phi = atoi(argv[i]);
+		}
+		else if (!strcmp(argv[i], "-gouraud")) {
+			gouraud = true;
+		}
 		else {
 			printf("whoops error with command line argument %d: '%s'\n", i, argv[i]);
 			assert(0);
@@ -69,14 +84,16 @@ int main(int argc, char *argv[]) {
 	char *depth_file = nullptr;
 	char *normal_file = nullptr;
 	bool output_mode = false, depth_mode = false, normal_mode = false, shade_back = false;
+	int tessellationTheta = 10, tessellationPhi = 5;
+	bool gui = false, gouraud = false;
 
 	// 以下用于调试程序时模拟输入参数
 	if (DEBUG) 
 	{
 		const int filename_buffer_length = 64;
 		input_file = new char[filename_buffer_length];
-		strcpy_s(input_file, filename_buffer_length, "Input/scene3_01_cube_orthographic.txt");
-		width = 200, height = 200;
+		strcpy_s(input_file, filename_buffer_length, "Input/scene3_08_sphere.txt");
+		width = 300, height = 300;
 		if (DEBUG_LOG) 
 		{
 			width = 32, height = 32;
@@ -85,24 +102,28 @@ int main(int argc, char *argv[]) {
 		if (output_mode) 
 		{
 			output_file = new char[filename_buffer_length];
-			strcpy_s(output_file, filename_buffer_length, "Output/output3_01.tga");
+			strcpy_s(output_file, filename_buffer_length, "Output/scene3_08.tga");
 		}
 		if (depth_mode) 
 		{
 			depth_min = 9;
 			depth_max = 11;
 			depth_file = new char[filename_buffer_length];
-			strcpy_s(depth_file, filename_buffer_length, "Output/depth2_05.tga");
+			strcpy_s(depth_file, filename_buffer_length, "Output/depth.tga");
 		}
 		if (normal_mode) 
 		{
 			normal_file = new char[filename_buffer_length];
-			strcpy_s(normal_file, filename_buffer_length, "Output/normals2_05.tga");
+			strcpy_s(normal_file, filename_buffer_length, "Output/normals.tga");
 		}
+		gui = true;
+		tessellationTheta = 10;
+		tessellationPhi = 5;
+		gouraud = false;
 	}
 	else // 从控制台输入参数
 	{
-		handleParameter(argc, argv, input_file, width, height, output_file, depth_file, depth_min, depth_max, normal_file, output_mode, depth_mode, normal_mode, shade_back);
+		handleParameter(argc, argv, input_file, width, height, output_file, depth_file, depth_min, depth_max, normal_file, output_mode, depth_mode, normal_mode, shade_back, tessellationTheta, tessellationPhi, gui, gouraud);
 	}
 
 	SceneParser *scene = new SceneParser(input_file);
@@ -112,18 +133,25 @@ int main(int argc, char *argv[]) {
 	if (depth_mode)raytracer->setDepth(depth_file, depth_min, depth_max);
 	if (normal_mode)raytracer->setNormal(normal_file);
 	if (DEBUG_LOG)raytracer->setDebugMode(1);
-	GLCanvas *canvas = new GLCanvas();
-	canvas->initialize(scene, rayTracerRender);
+	Sphere::SetTessellationParameters(tessellationTheta, tessellationPhi, gouraud);
+	if (gui)
+	{
+		GLCanvas* canvas = new GLCanvas();
+		canvas->initialize(scene, rayTracerRender);
+		delete canvas;
+	}
+	else
+	{
+		raytracer->render();
+	}
 
 	if (DEBUG)
 	{
 		delete[] input_file;
 		delete[] output_file;
 		delete[] depth_file;
-		system("pause");
 	}
 	delete scene;
 	//delete raytracer; 改为单例后不需要手动释放
-	delete canvas;
 	return 0;
 }

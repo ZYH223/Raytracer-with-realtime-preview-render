@@ -80,8 +80,8 @@ void RayTracer::render(void)
 		{
 			for (int j = 0; j < height; j++)
 			{
-				/*if (i == 31 && j == 0) {
-					cout << "start" << endl;
+				/*if (i == 266 && j == 130) {
+					cout << "pause" << endl;
 				}*/
 				Vec3f color = scene->getBackgroundColor(), normal = Vec3f();
 				Ray r = scene->getCamera()->generateRay(Vec2f(i / (float)width, j / (float)height));
@@ -111,11 +111,14 @@ void RayTracer::render(void)
 						Vec3f p = h.getIntersectionPoint(), dir, col;
 						float dis = 0.0f;
 						light->getIllumination(p, dir, col, dis);
-						float d = dir.Dot3(normal);
-						if (d > 0)// d<=0时没有漫反射分量
-						{
-							color += h.getMaterial()->getDiffuseColor() * d * col;
-						}
+						color += h.getMaterial()->Shade(r, h, dir, col);
+						//if (color.r() > 1.0f || color.g() > 1.0f || color.b() > 1.0f)cout << "WARNING: color at pixel("<<i<<","<<j<<") is out of range" << endl;
+						if (DEBUG_LOG)cout << "Color:" << color << endl;
+						//float d = dir.Dot3(normal);
+						//if (d > 0)// d<=0时没有漫反射分量
+						//{
+						//	color += h.getMaterial()->getDiffuseColor() * d * col;
+						//}
 					}
 				}
 				else

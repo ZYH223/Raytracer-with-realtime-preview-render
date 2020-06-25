@@ -13,14 +13,14 @@ public:
 	~Sphere();
 	virtual bool intersect(const Ray &r, Hit &h, float tmin, float tmax);
 	virtual void paint(void);
-	void SetTessellationParameters(float theta, float phi, bool gouraud);
+	static void SetTessellationParameters(int theta_step, int phi_step, bool isgouraud);
+	// data for OpenGL
+	static float theta, phi;// data for tessellation
+	static bool gouraud;
 protected:
 	Material* material;
 	float radius;
 	Vec3f center;
-	// data for OpenGL
-	float theta, phi;// data for tessellation
-	bool gouraud;
 };
 
 #endif // !SPHERE_H

@@ -84,6 +84,19 @@ void GLCanvas::drawAxes(void)
     glVertex3f( 0.07, 0.0,  0.8);
   glEnd();
 }
+#include "sphere.h"
+void test()
+{
+	GLfloat ambient[4] = { 0.5f, 0.5f, 0.1f, 1.0f };
+	GLfloat diffuse[4] = { 0.1f, 0.4f, 0.1f, 1.0f };
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+	Vec3f diff(0.1f, 0.4f, 0.1f);
+	Material* pm = new PhongMaterial(diff, diff, 1);
+	Sphere shpere(Vec3f(0.0f, 0.0f, 0.0f), 4.0f, pm);
+	shpere.paint();
+	delete pm;
+}
 
 // ========================================================
 // Callback for the OpenGL display loop.  To request that
@@ -96,7 +109,7 @@ void GLCanvas::display(GLFWwindow* window)
   Vec3f bgColor = scene->getBackgroundColor();
   glClearColor(bgColor.x(), bgColor.y(), bgColor.z(), 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+  
   scene->getCamera()->glInit(WIDTH, HEIGHT);
   // Set the camera parameters
   glMatrixMode(GL_MODELVIEW);
@@ -108,16 +121,16 @@ void GLCanvas::display(GLFWwindow* window)
   // ========================================================
   // DRAW AXES
   // remove this line once you've started rendering primitive objects
-  drawAxes(); 
+  //drawAxes(); 
   // ========================================================
 
-
+  //test();
   glEnable(GL_LIGHTING);
   glEnable(GL_DEPTH_TEST);
 
   // Place each of the lights in the scene
-  for (int i=0; i<scene->getNumLights(); i++) {
-    scene->getLight(i)->glInit(i);
+  for (int i = 0; i < scene->getNumLights(); i++) {
+	  scene->getLight(i)->glInit(i);
   }
 
 #if !SPECULAR_FIX
@@ -213,7 +226,7 @@ void GLCanvas::motion(GLFWwindow* window, double x, double y) {
   // Middle button = translation
   // (move camera perpendicular to the direction vector)
   else if (mouseButton == GLFW_MOUSE_BUTTON_MIDDLE) {
-    scene->getCamera()->truckCamera((mouseX-x)*0.05, (y-mouseY)*0.05);
+    scene->getCamera()->truckCamera((mouseX-x)*0.005, (y-mouseY)*0.005);
     mouseX = x;
     mouseY = y;
   }
@@ -325,7 +338,7 @@ void GLCanvas::initialize(SceneParser *_scene, void (*_renderFunction)(void)) {
   glfwSetKeyCallback(window, keyboard);
   glfwSetMouseButtonCallback(window, mouse);
   glfwSetCursorPosCallback(window, motion);
-  glfwSetScrollCallback(window, reshape);
+  //glfwSetScrollCallback(window, reshape);
   glfwMakeContextCurrent(window);
   while (!glfwWindowShouldClose(window))
   {
