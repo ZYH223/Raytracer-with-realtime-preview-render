@@ -34,7 +34,13 @@ protected:
 
 class PhongMaterial:public Material {
 public:
-	PhongMaterial(Vec3f &d_color, Vec3f &s_color, float e):Material(d_color),specularColor(s_color),exponent(e) {}
+	PhongMaterial(
+		const Vec3f &d_color,
+		const Vec3f &s_color,
+		float e,
+		const Vec3f& r_color,
+		const Vec3f& t_color,
+		float index):Material(d_color),specularColor(s_color),exponent(e),refractionColor(r_color),transparentColor(t_color),indexOfRefraction(index) {}
 	~PhongMaterial() {}
 	Vec3f Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const;
 	Vec3f getSpecularColor() const { return specularColor; }
@@ -42,6 +48,9 @@ public:
 protected:
 	Vec3f specularColor;
 	float exponent;
+	Vec3f refractionColor;
+	Vec3f transparentColor;
+	float indexOfRefraction;
 };
 
 // ====================================================================

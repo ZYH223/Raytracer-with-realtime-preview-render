@@ -14,7 +14,7 @@ class Hit {
 public:
 
   // CONSTRUCTOR & DESTRUCTOR
-  Hit() { material = NULL; }
+  Hit() { material = NULL; t = FLT_MAX; }
   Hit(float _t, Material *m, Vec3f n) { 
     t = _t; material = m; normal = n; }
   Hit(const Hit &h) { 

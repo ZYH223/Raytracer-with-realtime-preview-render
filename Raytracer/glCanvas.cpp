@@ -3,6 +3,7 @@
 #include "light.h"
 #include "camera.h"
 #include "group.h"
+#include "rayTree.h"
 // ========================================================
 
 // STATIC VARIABLES
@@ -11,9 +12,9 @@
 const int WIDTH = 800;
 const int HEIGHT = 800;
 
-// A reference to the function that performs the raytracing
-// This function will get called from the 'keyboard' routine
+// These function will get called from the 'keyboard' routine
 void (*GLCanvas::renderFunction)(void);
+void (*GLCanvas::traceRayFunction)(float, float);
 
 // A pointer to the global SceneParser
 SceneParser *GLCanvas::scene;
@@ -84,19 +85,6 @@ void GLCanvas::drawAxes(void)
     glVertex3f( 0.07, 0.0,  0.8);
   glEnd();
 }
-#include "sphere.h"
-void test()
-{
-	GLfloat ambient[4] = { 0.5f, 0.5f, 0.1f, 1.0f };
-	GLfloat diffuse[4] = { 0.1f, 0.4f, 0.1f, 1.0f };
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
-	Vec3f diff(0.1f, 0.4f, 0.1f);
-	Material* pm = new PhongMaterial(diff, diff, 1);
-	Sphere shpere(Vec3f(0.0f, 0.0f, 0.0f), 4.0f, pm);
-	shpere.paint();
-	delete pm;
-}
 
 // ========================================================
 // Callback for the OpenGL display loop.  To request that
@@ -124,7 +112,6 @@ void GLCanvas::display(GLFWwindow* window)
   //drawAxes(); 
   // ========================================================
 
-  //test();
   glEnable(GL_LIGHTING);
   glEnable(GL_DEPTH_TEST);
 
@@ -166,6 +153,10 @@ void GLCanvas::display(GLFWwindow* window)
   glDisable(GL_BLEND);
 
 #endif
+  // Draw the ray tree
+  glDisable(GL_LIGHTING);
+  RayTree::paint();
+  glEnable(GL_LIGHTING);
 
   // Swap the back buffer with the front buffer to display the scene
   //glutSwapBuffers();
@@ -259,6 +250,23 @@ void GLCanvas::keyboard (GLFWwindow* window, int key, int scancode, int action, 
 			if (renderFunction) renderFunction();
 			printf("done.\n");
 			break;
+        case GLFW_KEY_T: {
+            // visualize the ray tree for the pixel at the current mouse position
+            // flip up & down
+            double mousex, mousey;
+            glfwGetCursorPos(window, &mousex, &mousey);
+            int i = (int)mousex, j = HEIGHT - (int)mousey;
+            int max = (WIDTH > HEIGHT) ? WIDTH : HEIGHT;
+            // map the pixel coordinates: (0,0) -> (width-1,height-1);
+            //      to screenspace: (0.0,0.0) -> (1.0,1.0);
+            float x = ((i + 0.5) - WIDTH / 2.0) / float(max) + 0.5;
+            float y = ((j + 0.5) - HEIGHT / 2.0) / float(max) + 0.5;
+            RayTree::Activate();
+            if (traceRayFunction) traceRayFunction(x, y);
+            RayTree::Deactivate();
+            // redraw
+            display(window);
+            break; }
 		default:
 			printf("UNKNOWN KEYBOARD INPUT  '%c'\n", key);
 	}
@@ -281,9 +289,10 @@ void GLCanvas::framebuffer_size_callback(GLFWwindow* window, int width, int heig
 // by calling 'exit(0)'
 // ========================================================
 
-void GLCanvas::initialize(SceneParser *_scene, void (*_renderFunction)(void)) {
+void GLCanvas::initialize(SceneParser* _scene, void (*_renderFunction)(void), void (*_traceRayFunction)(float, float)) {
   scene = _scene;
   renderFunction = _renderFunction;
+  traceRayFunction = _traceRayFunction;
 
   //// Set window parameters
   //glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGB);

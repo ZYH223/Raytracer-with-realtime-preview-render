@@ -23,7 +23,7 @@ class SceneParser;
 
 //   0: don't fix   
 //   1: do fix
-#define SPECULAR_FIX 1 
+#define SPECULAR_FIX 0 
 
 // ====================================================================
 
@@ -31,8 +31,12 @@ class GLCanvas {
 
 private:
   // A reference to the function that performs the raytracing
-  // This gets called from the 'keyboard' rotine
+  // This gets called from the 'keyboard' routine
   static void (*renderFunction)(void);
+
+  // A reference to the function that traces the ray tree for a single pixel
+  // This gets called from the 'keyboard' routine
+  static void (*traceRayFunction)(float,float);
 
   // A pointer to the global SceneParser
   static SceneParser *scene;
@@ -47,7 +51,7 @@ private:
 
   // Callback functions for mouse and keyboard events
   static void display(GLFWwindow* window);
-  static void reshape(GLFWwindow* window, double x, double y);
+  static void reshape(GLFWwindow* window, double w, double h);
   static void mouse(GLFWwindow* window, int button, int action, int mods);
   static void motion(GLFWwindow* window, double x, double y);
   static void keyboard(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -56,13 +60,15 @@ private:
 public:
   // Constructor and destructor
   GLCanvas(void) {
-    renderFunction = NULL;}
+    renderFunction = NULL;
+    traceRayFunction = NULL; }
  ~GLCanvas(void) { }
 
   // Set up the canvas and enter the rendering loop
   // Note that this function will not return but can be
   // terminated by calling 'exit(0)'
-  void initialize(SceneParser *_scene, void (*_renderFunction)(void));
+
+  void initialize(SceneParser *_scene, void (*_renderFunction)(void), void (*_traceRayFunction)(float,float));
 };
 
 // ====================================================================

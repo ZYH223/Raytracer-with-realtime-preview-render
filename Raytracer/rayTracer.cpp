@@ -2,9 +2,14 @@
 
 RayTracer::RayTracer()
 {
-	image_output = nullptr;
-	image_depth = nullptr;
-	image_normal = nullptr;
+	width = 200, height = 200;
+	scene = nullptr;
+	output_mode = false, output_file = nullptr, shade_back = true;
+	depth_mode = false, depth_file = nullptr, depth_min = 0, depth_max = FLT_MAX;
+	normal_mode = false, normal_file = nullptr;
+	image_output = nullptr, image_depth = nullptr, image_normal = nullptr;
+	max_bounces = 10, cutoff_weight = 10.0f, shadows = true;
+	DEBUG_LOG = false;
 }
 
 RayTracer& RayTracer::getInstance()
@@ -21,11 +26,14 @@ RayTracer& RayTracer::getInstance()
 //	initialize(width, height, scene);
 //}
 
-void RayTracer::initialize(int width, int height, SceneParser* scene)
+void RayTracer::initialize(int width, int height, SceneParser* scene, int max_bounces, float cutoff_weight, bool shadows)
 {
 	this->width = width;
 	this->height = height;
 	this->scene = scene;
+	this->max_bounces = max_bounces;
+	this->cutoff_weight = cutoff_weight;
+	this->shadows = shadows;
 }
 
 RayTracer::~RayTracer()
@@ -68,12 +76,17 @@ void RayTracer::setDebugMode(int mode)
 	}
 	else
 	{
-		cout << "WARNING: Undefined debug mode for RayTracer" << endl;
+		cout << "RAYTRACER::WARNING: Undefined debug mode: " << mode << " for RayTracer" << endl;
 	}
 }
 
 void RayTracer::render(void) 
 {
+	if (scene == nullptr)
+	{
+		cout << "RAYTRACER::WARNING: Scene hasn't been specified" << endl;
+		return;
+	}
 	if (output_mode || depth_mode || normal_mode)
 	{
 		for (int i = 0; i < width; i++)
@@ -85,7 +98,7 @@ void RayTracer::render(void)
 				}*/
 				Vec3f color = scene->getBackgroundColor(), normal = Vec3f();
 				Ray r = scene->getCamera()->generateRay(Vec2f(i / (float)width, j / (float)height));
-				Hit h(depth_max, nullptr, Vec3f());
+				Hit h(FLT_MAX, nullptr, Vec3f());
 				if (DEBUG_LOG)cout << Vec3f(i, j, 0) << ":" << r << " intersect with ";
 				if (scene->getGroup()->intersect(r, h, scene->getCamera()->getTMin(), FLT_MAX))
 				{
@@ -103,7 +116,19 @@ void RayTracer::render(void)
 					}
 
 					// 计算颜色
-					color = scene->getAmbientLight() * h.getMaterial()->getDiffuseColor();// 计算环境光
+					//color = scene->getAmbientLight() * h.getMaterial()->getDiffuseColor();// 计算环境光
+					//int numLights = scene->getNumLights();
+					//for (int i = 0; i < numLights; i++)// 计算每个光源的漫反射分量
+					//{
+					//	Light* light = scene->getLight(i);
+					//	Vec3f p = h.getIntersectionPoint(), dir, col;
+					//	float dis = 0.0f;
+					//	light->getIllumination(p, dir, col, dis);
+					//	color += h.getMaterial()->Shade(r, h, dir, col);
+					//	if (color.r() > 1.0f || color.g() > 1.0f || color.b() > 1.0f)cout << "RayTracer::WARNING: color at pixel("<<i<<","<<j<<") is out of range" << endl;
+					//	if (DEBUG_LOG)cout << "Color:" << color << endl;
+					//}
+					color = scene->getAmbientLight() * h.getMaterial()->getDiffuseColor();
 					int numLights = scene->getNumLights();
 					for (int i = 0; i < numLights; i++)// 计算每个光源的漫反射分量
 					{
@@ -111,14 +136,14 @@ void RayTracer::render(void)
 						Vec3f p = h.getIntersectionPoint(), dir, col;
 						float dis = 0.0f;
 						light->getIllumination(p, dir, col, dis);
-						color += h.getMaterial()->Shade(r, h, dir, col);
-						//if (color.r() > 1.0f || color.g() > 1.0f || color.b() > 1.0f)cout << "WARNING: color at pixel("<<i<<","<<j<<") is out of range" << endl;
+
+						float epsilon = 0.00001f;
+						Ray rayShadow(p+epsilon*h.getNormal(), dir);
+						Hit hitShadow(dis, nullptr, Vec3f());
+						if (!scene->getGroup()->intersectShadowRay(rayShadow, hitShadow, dis))
+							color += h.getMaterial()->Shade(r, h, dir, col);
+						if (color.r() > 1.0f || color.g() > 1.0f || color.b() > 1.0f)cout << "RayTracer::WARNING: color at pixel(" << i << "," << j << ") is out of range" << endl;
 						if (DEBUG_LOG)cout << "Color:" << color << endl;
-						//float d = dir.Dot3(normal);
-						//if (d > 0)// d<=0时没有漫反射分量
-						//{
-						//	color += h.getMaterial()->getDiffuseColor() * d * col;
-						//}
 					}
 				}
 				else
@@ -146,4 +171,10 @@ void RayTracer::render(void)
 		if (depth_mode)image_depth->SaveTGA(depth_file);
 		if (normal_mode)image_normal->SaveTGA(normal_file);
 	} else cout << "RayTracer::WARNING: No render mode is specified(output,depth,normal)" << endl;
+}
+
+Vec3f RayTracer::traceRay(Ray& ray, float tmin, int bounces, float weight, float indexOfRefraction, Hit& hit) const
+{
+	
+	return Vec3f();
 }

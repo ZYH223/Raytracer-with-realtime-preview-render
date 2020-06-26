@@ -49,6 +49,18 @@ bool Group::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 	return hit_something;
 }
 
+bool Group::intersectShadowRay(const Ray& r, Hit& h, float distanceToLight)
+{
+	for (int i = 0; i < list_size; i++)
+	{
+		if (list[i]->intersect(r, h, 0, distanceToLight))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void Group::paint(void) {
 	for (int i = 0; i < list_size; i++)
 	{

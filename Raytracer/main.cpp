@@ -3,7 +3,7 @@
 #include "rayTracer.h"
 #include "Sphere.h"
 using namespace std;
-const bool DEBUG = false;
+const bool DEBUG = true;
 const bool DEBUG_LOG = false;
 
 void handleParameter(
@@ -74,6 +74,11 @@ void rayTracerRender()
 	RayTracer::getInstance().render();
 }
 
+void rayTracerTracing(float x, float y)
+{
+	//RayTracer::getInstance().traceRay();
+}
+
 int main(int argc, char *argv[]) {
 	char *input_file = nullptr;
 	int width = 100;
@@ -92,7 +97,7 @@ int main(int argc, char *argv[]) {
 	{
 		const int filename_buffer_length = 64;
 		input_file = new char[filename_buffer_length];
-		strcpy_s(input_file, filename_buffer_length, "Input/scene3_08_sphere.txt");
+		strcpy_s(input_file, filename_buffer_length, "Input/scene4_01_sphere_shadow.txt");
 		width = 300, height = 300;
 		if (DEBUG_LOG) 
 		{
@@ -102,7 +107,7 @@ int main(int argc, char *argv[]) {
 		if (output_mode) 
 		{
 			output_file = new char[filename_buffer_length];
-			strcpy_s(output_file, filename_buffer_length, "Output/scene3_08.tga");
+			strcpy_s(output_file, filename_buffer_length, "Output/scene4_01.tga");
 		}
 		if (depth_mode) 
 		{
@@ -116,7 +121,7 @@ int main(int argc, char *argv[]) {
 			normal_file = new char[filename_buffer_length];
 			strcpy_s(normal_file, filename_buffer_length, "Output/normals.tga");
 		}
-		gui = true;
+		gui = false;
 		tessellationTheta = 10;
 		tessellationPhi = 5;
 		gouraud = false;
@@ -128,7 +133,7 @@ int main(int argc, char *argv[]) {
 
 	SceneParser *scene = new SceneParser(input_file);
 	RayTracer *raytracer = &(RayTracer::getInstance());
-	raytracer->initialize(width, height, scene);
+	raytracer->initialize(width, height, scene, 100, 10.0f, true);
 	if (output_mode)raytracer->setOutput(output_file, shade_back);
 	if (depth_mode)raytracer->setDepth(depth_file, depth_min, depth_max);
 	if (normal_mode)raytracer->setNormal(normal_file);
@@ -137,7 +142,7 @@ int main(int argc, char *argv[]) {
 	if (gui)
 	{
 		GLCanvas* canvas = new GLCanvas();
-		canvas->initialize(scene, rayTracerRender);
+		canvas->initialize(scene, rayTracerRender, rayTracerTracing);
 		delete canvas;
 	}
 	else
