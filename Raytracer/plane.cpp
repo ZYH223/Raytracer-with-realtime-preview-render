@@ -34,7 +34,7 @@ Plane::~Plane()
 
 bool Plane::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 {
-	bool paralleled = (fabs(r.getDirection().Dot3(normal)) < DIFF);
+	bool paralleled = (fabs(r.getDirection().Dot3(normal)) < EPSILON);
 	if (!paralleled)
 	{
 		// ½« p = dir*t+origin ´úÈë p¡¤n = d

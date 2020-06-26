@@ -19,7 +19,7 @@ bool Triangle::intersect(const Ray &r, Hit &h, float tmin, float tmax)// œ»”Î∆Ω√
 	Vec3f u = b - a, v = c - b, w = a - c, normal;
 	Vec3f::Cross3(normal, u, v);
 	normal.Normalize();
-	if (fabs(normal.Dot3(r.getDirection())) < DIFF)return false;// ∆Ω––
+	if (fabs(normal.Dot3(r.getDirection())) < EPSILON)return false;// ∆Ω––
 	float distance = a.Dot3(normal);
 	float t = (distance - r.getOrigin().Dot3(normal)) / (r.getDirection().Dot3(normal));
 	if (tmin <= t && t <= tmax)

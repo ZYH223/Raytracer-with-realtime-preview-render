@@ -29,7 +29,7 @@ OrthographicCamera::OrthographicCamera(Vec3f c, Vec3f d, Vec3f u, float s)
 	direction.Normalize();
 	up = (u - (u.Dot3(direction))*direction);
 	up.Normalize();
-	assert(fabs(direction.Dot3(up)) < DIFF);
+	assert(fabs(direction.Dot3(up)) < EPSILON);
 	Vec3f::Cross3(horizontal, direction, up);
 	//Vec3f::Cross3(horizontal, direction, up);
 }
@@ -167,7 +167,7 @@ PerspectiveCamera::PerspectiveCamera(Vec3f c, Vec3f d, Vec3f u, float a)
 	direction.Normalize();
 	up = (u - (u.Dot3(direction))*direction);
 	up.Normalize();
-	assert(fabs(direction.Dot3(up)) < DIFF);
+	assert(fabs(direction.Dot3(up)) < EPSILON);
 	Vec3f::Cross3(horizontal, direction, up);
 }
 

@@ -70,17 +70,17 @@ void PhongMaterial::glSetMaterial(void) const {
 #endif
 }
 
-Vec3f PhongMaterial::Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor) const
+Vec3f PhongMaterial::Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor, const float &disToLight) const
 {
-	float attenuation = 1.0f;// 因为目前只有Directional Light，所以暂时不考虑到光源的距离r带来的衰减
+	float attenuation = isfinite(disToLight) ? 1.0f/(disToLight* disToLight) : 1.0f;// 因为目前只有Directional Light，所以暂时不考虑到光源的距离r带来的衰减
 	// Blinn-Torrance方法，借助半程向量计算镜面反射项
 	Vec3f h = -1.0f*ray.getDirection() + dirToLight;
 	h.Normalize();
 	float cosalpha = hit.getNormal().Dot3(h);
 	float costheta = hit.getNormal().Dot3(dirToLight);
 	Vec3f Ls(0.0f, 0.0f, 0.0f), Ld(0.0f, 0.0f, 0.0f);
-	if (cosalpha > DIFF) Ls = specularColor * pow(cosalpha, exponent) * lightColor * attenuation;
-	if (costheta > DIFF) Ld = diffuseColor * costheta * lightColor * attenuation;
+	if (cosalpha > EPSILON) Ls = specularColor * pow(cosalpha, exponent) * lightColor * attenuation;
+	if (costheta > EPSILON) Ld = diffuseColor * costheta * lightColor * attenuation;
 	return Ls + Ld;
 }
 

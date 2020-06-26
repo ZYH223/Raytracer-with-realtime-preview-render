@@ -71,7 +71,7 @@ void handleParameter(
 
 void rayTracerRender()
 {
-	RayTracer::getInstance().render();
+	RayTracer::getInstance().renderRayCast();
 }
 
 void rayTracerTracing(float x, float y)
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
 	}
 	else
 	{
-		raytracer->render();
+		raytracer->renderRayCast();
 	}
 
 	if (DEBUG)

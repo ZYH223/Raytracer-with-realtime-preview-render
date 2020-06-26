@@ -5,7 +5,7 @@ Transform::Transform(Matrix& m, Object3D* o)
 	matrix = m;
 	object = o; 
 	inversedMatrix = matrix;
-	inversedMatrix.Inverse(DIFF);
+	inversedMatrix.Inverse(EPSILON);
 	transposedInversedMatrix = inversedMatrix;
 	transposedInversedMatrix.Transpose();
 
