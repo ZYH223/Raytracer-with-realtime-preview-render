@@ -220,9 +220,9 @@ Vec3f RayTracer::traceRay(Ray& r, float tmin, int bounces, float weight, float i
 			Hit hitShadow(distanceToLight, nullptr, Vec3f());
 			if (shadows)// 先检查是否需要渲染阴影
 			{
-				scene->getGroup()->intersectShadowRay(rayShadow, hitShadow, distanceToLight, lightColor);// 获取是否被遮挡
-				if(!isfinite(hitShadow.getT()) || fabs(hitShadow.getT() - distanceToLight) < EPSILON)
-					color += h.getMaterial()->Shade(r, h, directionToLight, lightColor, distanceToLight);// 如果没有被完全遮挡(未被遮挡或被透明材质遮挡），用Phong材质进行着色
+				bool intersected = scene->getGroup()->intersectShadowRay(rayShadow, hitShadow, distanceToLight, lightColor);// 获取是否命中
+				if(!intersected || fabs(hitShadow.getT() - distanceToLight) < EPSILON)// 如果未命中或者未遮挡，则用Phong材质进行着色（实际上只要t = distanceToLight也就说有光线能够到达光源即可）
+					color += h.getMaterial()->Shade(r, h, directionToLight, lightColor, distanceToLight);// 如果没有被完全遮挡(未被遮挡或被透明材质遮挡），
 			}
 
 			if (DEBUG_RAY) RayTree::AddShadowSegment(rayShadow, EPSILON, hitShadow.getT());
@@ -270,9 +270,9 @@ void RayTracer::renderRayTracing(void)
 			for (int j = 0; j < height; j++)
 			{
 
-				if (i == 100 && j == 40) {
+				/*if (i == 100 && j == 40) {
 					cout << "pause" << endl;
-				}
+				}*/
 				cout << "\r" << fixed << setprecision(2) << 100.0f * (i * width + j + 1) / (width * height) << "%";
 				Vec3f color(0.0f, 0.0f, 0.0f);// 设置环境光
 				Ray r = scene->getCamera()->generateRay(Vec2f(i / (float)width, j / (float)height));

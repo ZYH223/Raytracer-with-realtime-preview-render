@@ -15,12 +15,11 @@ public:
 	virtual void paint(void) = 0;
 };
 
-class Primitive: public Object3D
+class Primitive : public Object3D
 {
 public:
 	virtual bool intersect(const Ray& r, Hit& h, float tmin, float tmax) = 0;
-	virtual bool intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3f& color) { return intersect(r, h, EPSILON, distanceToLight); }
+	virtual bool intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3f& color);
 	virtual void paint(void) = 0;
 };
-
-#endif // !OBJECT3D_H
+#endif // !OBJECT3D_H_
