@@ -27,8 +27,9 @@ OrthographicCamera::OrthographicCamera(Vec3f c, Vec3f d, Vec3f u, float s)
 	size = s;
 	direction = d;
 	direction.Normalize();
-	up = (u - (u.Dot3(direction))*direction);
+	up = (u - (u.Dot3(direction))*direction);// up一旦确定不再改变，相机位置和方向变换时只改变screenUp
 	up.Normalize();
+	screenUp = up;
 	assert(fabs(direction.Dot3(up)) < EPSILON);
 	Vec3f::Cross3(horizontal, direction, up);
 	//Vec3f::Cross3(horizontal, direction, up);
@@ -37,8 +38,12 @@ OrthographicCamera::OrthographicCamera(Vec3f c, Vec3f d, Vec3f u, float s)
 Ray OrthographicCamera::generateRay(Vec2f point)
 {
 	VerifyScreenCoordinate(point);
+	Vec3f::Cross3(horizontal, direction, up);
+	horizontal.Normalize();
+	Vec3f::Cross3(screenUp, horizontal, direction);
+	screenUp.Normalize();
 	return Ray(
-		(point.x() * size - size / 2.0f)*horizontal + (point.y() * size - size / 2.0f)*up + center,
+		(point.x() * size - size / 2.0f)*horizontal + (point.y() * size - size / 2.0f)*screenUp + center,
 		direction);
 }
 
@@ -174,7 +179,11 @@ PerspectiveCamera::PerspectiveCamera(Vec3f c, Vec3f d, Vec3f u, float a)
 Ray PerspectiveCamera::generateRay(Vec2f point)
 {
 	VerifyScreenCoordinate(point);
-	Vec3f dir = (point.x() - 0.5f) * tan(fov) * horizontal + (point.y() - 0.5f) * tan(fov) * up + direction;
+	Vec3f::Cross3(horizontal, direction, up);
+	horizontal.Normalize();
+	Vec3f::Cross3(screenUp, horizontal, direction);
+	screenUp.Normalize();
+	Vec3f dir = (point.x() - 0.5f) * tan(fov) * horizontal + (point.y() - 0.5f) * tan(fov) * screenUp + direction;
 	dir.Normalize();
 	return Ray(
 		center,

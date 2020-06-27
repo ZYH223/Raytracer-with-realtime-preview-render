@@ -1,6 +1,6 @@
 #pragma once
 #include "object3d.h"
-class Plane : public Object3D {
+class Plane : public Primitive {
 public:
 	Plane(Vec3f &n, float d, Material *m);
 	~Plane();

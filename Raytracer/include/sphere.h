@@ -6,7 +6,7 @@
 #include "Object3D.h"
 #include <cmath>
 
-class Sphere : public Object3D
+class Sphere : public Primitive
 {
 public:
 	Sphere(Vec3f c, float r, Material* m);

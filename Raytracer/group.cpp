@@ -49,17 +49,22 @@ bool Group::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 	return hit_something;
 }
 
-bool Group::intersectShadowRay(const Ray& r, Hit& h, float distanceToLight)
+bool Group::intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3f& color)
 {
-	const float epsilon = EPSILON;
+	//bool hit_something = false;
 	for (int i = 0; i < list_size; i++)
 	{
-		if (list[i]->intersect(r, h, epsilon, distanceToLight))
+		if (list[i]->intersectShadowRay(r, h, distanceToLight, color))
 		{
-			return true;
+			//hit_something = true;// 被遮挡
+			if(h.getMaterial()->getTransparentrColor().Length() < EPSILON) return true;// 被完全遮挡
+			if (r.getDirection().Dot3(h.getNormal()) < 0)// 仅入射时计算透明阴影
+				color = color * h.getMaterial()->getTransparentrColor();
+				//color = color * 0.5f;
+			h.set(distanceToLight, h.getMaterial(), h.getNormal(), r);
 		}
 	}
-	return false;
+	return false;// 未被遮挡或者被透明材质遮挡
 }
 
 void Group::paint(void) {

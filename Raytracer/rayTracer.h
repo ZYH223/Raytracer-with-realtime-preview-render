@@ -20,6 +20,7 @@ public:
 	void renderRayCast();
 	void renderRayTracing();
 	Vec3f traceRay(Ray& ray, float tmin, int bounces, float weight, float indexOfRefraction, Hit& hit) const;
+	void renderRayDebug(float x, float y);
 private:
 	RayTracer();
 	int width, height;
@@ -30,5 +31,5 @@ private:
 	Image *image_output, *image_depth, *image_normal;
 	int max_bounces; float cutoff_weight; bool shadows;
 	
-	bool DEBUG_LOG;
+	bool DEBUG_LOG, DEBUG_RAY;
 };

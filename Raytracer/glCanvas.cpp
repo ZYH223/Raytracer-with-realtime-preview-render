@@ -245,22 +245,25 @@ void GLCanvas::keyboard (GLFWwindow* window, int key, int scancode, int action, 
 			glfwSetWindowShouldClose(window, GL_TRUE);
 			break;
 		case GLFW_KEY_R:
-			printf("Rendering scene... "); 
+			printf("Rendering scene... \n"); 
 			fflush(stdout);
 			if (renderFunction) renderFunction();
-			printf("done.\n");
+			printf("\r...done.\n");
 			break;
         case GLFW_KEY_T: {
             // visualize the ray tree for the pixel at the current mouse position
             // flip up & down
             double mousex, mousey;
             glfwGetCursorPos(window, &mousex, &mousey);
-            int i = (int)mousex, j = HEIGHT - (int)mousey;
+            printf("mouse(%f, %f)\n", mousex, mousey);
+            //int i = (int)mousex, j = HEIGHT - (int)mousey;
             int max = (WIDTH > HEIGHT) ? WIDTH : HEIGHT;
             // map the pixel coordinates: (0,0) -> (width-1,height-1);
             //      to screenspace: (0.0,0.0) -> (1.0,1.0);
-            float x = ((i + 0.5) - WIDTH / 2.0) / float(max) + 0.5;
-            float y = ((j + 0.5) - HEIGHT / 2.0) / float(max) + 0.5;
+            //float x = ((i + 0.5) - WIDTH / 2.0) / float(max) + 0.5;
+            //float y = ((j + 0.5) - HEIGHT / 2.0) / float(max) + 0.5;
+            float x = mousex / WIDTH, y = (HEIGHT - mousey) / HEIGHT;
+            printf("mouse(%f, %f)\n", x, y);
             RayTree::Activate();
             if (traceRayFunction) traceRayFunction(x, y);
             RayTree::Deactivate();

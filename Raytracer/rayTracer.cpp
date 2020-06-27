@@ -1,4 +1,6 @@
 #include "rayTracer.h"
+#include "rayTree.h"
+#include <iomanip>
 
 RayTracer::RayTracer()
 {
@@ -9,7 +11,7 @@ RayTracer::RayTracer()
 	normal_mode = false, normal_file = nullptr;
 	image_output = nullptr, image_depth = nullptr, image_normal = nullptr;
 	max_bounces = 10, cutoff_weight = 10.0f, shadows = true;
-	DEBUG_LOG = false;
+	DEBUG_LOG = false; DEBUG_RAY = false;
 }
 
 RayTracer& RayTracer::getInstance()
@@ -54,6 +56,7 @@ void RayTracer::setOutput(char *output_file, bool shade_back = false)
 
 void RayTracer::setDepth(char *depth_file, float depth_min, float depth_max)
 {
+	depth_mode = true;
 	this->depth_file = depth_file;
 	this->depth_min = depth_min;
 	this->depth_max = depth_max;
@@ -63,6 +66,7 @@ void RayTracer::setDepth(char *depth_file, float depth_min, float depth_max)
 
 void RayTracer::setNormal(char *normal_file)
 {
+	normal_mode = true;
 	this->normal_file = normal_file;
 	if (image_normal != nullptr)delete image_normal;
 	image_normal = new Image(width, height);
@@ -125,7 +129,7 @@ void RayTracer::renderRayCast(void)
 							// 计算遮挡
 							Ray rayShadow(p, dir);
 							Hit hitShadow(dis, nullptr, Vec3f());
-							if (!scene->getGroup()->intersectShadowRay(rayShadow, hitShadow, dis))
+							if (!scene->getGroup()->intersectShadowRay(rayShadow, hitShadow, dis, col))
 								color += h.getMaterial()->Shade(r, h, dir, col, dis);
 							if (color.r() > 1.0f || color.g() > 1.0f || color.b() > 1.0f)cout << "RayTracer::WARNING: color at pixel(" << i << "," << j << ") is out of range" << endl;
 							if (DEBUG_LOG)cout << "Color:" << color << endl;
@@ -186,7 +190,7 @@ bool transmittedDirection(const Vec3f& normal, const Vec3f& incoming,
 	const float eta = index_i / index_t, normalDotIncoming = normal.Dot3(incoming), 
 		judgement = (1 - eta * eta * (1 - normalDotIncoming * normalDotIncoming));
 	if (judgement < 0)return false;// 发生全反射
-	transmitted = (eta * normalDotIncoming - sqrt(1 - eta * eta * (1 - normalDotIncoming * normalDotIncoming))) * normal - eta * incoming;
+	transmitted = (eta * normalDotIncoming - sqrt(judgement)) * normal - eta * incoming;
 	transmitted.Normalize();
 	return true;
 }
@@ -197,6 +201,14 @@ Vec3f RayTracer::traceRay(Ray& r, float tmin, int bounces, float weight, float i
 	Vec3f color = scene->getBackgroundColor();
 	if (scene->getGroup()->intersect(r, h, tmin, FLT_MAX))
 	{
+		bool inside = false;// 如果判断是从物体内部计算光线，则设inside为true
+		if (shade_back && r.getDirection().Dot3(h.getNormal()) > 0)
+		{
+			Vec3f normal = h.getNormal();
+			normal.Negate();
+			h.set(h.getT(), h.getMaterial(), normal, r);
+			inside = true;
+		}
 		color = scene->getAmbientLight() * h.getMaterial()->getDiffuseColor();
 		int numLights = scene->getNumLights();
 		for (int i = 0; i < numLights; i++)// 计算每个光源对应的阴影
@@ -206,8 +218,14 @@ Vec3f RayTracer::traceRay(Ray& r, float tmin, int bounces, float weight, float i
 			light->getIllumination(intersectedPoint, directionToLight, lightColor, distanceToLight);
 			Ray rayShadow(intersectedPoint, directionToLight);
 			Hit hitShadow(distanceToLight, nullptr, Vec3f());
-			if (!shadows || !scene->getGroup()->intersectShadowRay(rayShadow, hitShadow, distanceToLight))// 先检查是否需要渲染阴影
-				color += h.getMaterial()->Shade(r, h, directionToLight, lightColor, distanceToLight);// 如果不在阴影内，正常显示Phong材质
+			if (shadows)// 先检查是否需要渲染阴影
+			{
+				scene->getGroup()->intersectShadowRay(rayShadow, hitShadow, distanceToLight, lightColor);// 获取是否被遮挡
+				if(!isfinite(hitShadow.getT()) || fabs(hitShadow.getT() - distanceToLight) < EPSILON)
+					color += h.getMaterial()->Shade(r, h, directionToLight, lightColor, distanceToLight);// 如果没有被完全遮挡(未被遮挡或被透明材质遮挡），用Phong材质进行着色
+			}
+
+			if (DEBUG_RAY) RayTree::AddShadowSegment(rayShadow, EPSILON, hitShadow.getT());
 		}
 		if (h.getMaterial()->getReflectColor().Length() > EPSILON)// 如果具有反射材质
 		{
@@ -215,18 +233,24 @@ Vec3f RayTracer::traceRay(Ray& r, float tmin, int bounces, float weight, float i
 			Hit hitReflection(FLT_MAX, nullptr, Vec3f());
 			color += h.getMaterial()->getReflectColor() * traceRay( rayReflection, EPSILON, bounces + 1, // 用新的射线进行迭代跟踪
 				weight * h.getMaterial()->getReflectColor().Length(), h.getMaterial()->getIndexOfRefraction(), hitReflection);
+
+			if (DEBUG_RAY) RayTree::AddReflectedSegment(rayReflection, EPSILON, hitReflection.getT());
 		}
 		if (h.getMaterial()->getTransparentrColor().Length() > EPSILON)// 如果具有折射/透明材质
 		{
 			Vec3f transmittedDir;
-			if (transmittedDirection(h.getNormal(), r.getDirection(), indexOfRefraction,
-				h.getMaterial()->getIndexOfRefraction(), transmittedDir))// 检查是否能够正常发生折射,否则发生全反射，折射部分无效
+			float indexT = inside ? 1.0f : h.getMaterial()->getIndexOfRefraction();// 如果是内部，则将出射介质折射率设为1.0（暂不考虑不同介质之间的折射，只考虑介质和真空）
+			if (transmittedDirection(h.getNormal(), -1.0f * r.getDirection(),
+				indexOfRefraction, indexT, transmittedDir))// 检查是否能够正常发生折射,否则发生全反射，折射部分无效
 			{
-				Ray rayTransparentr(h.getIntersectionPoint(), transmittedDir);
-				Hit hitTransparentr(FLT_MAX, nullptr, Vec3f());// 从碰撞点发起折射光线迭代跟踪
-				color += h.getMaterial()->getTransparentrColor() * traceRay(rayTransparentr, EPSILON, bounces + 1,
-					weight * h.getMaterial()->getTransparentrColor().Length(), h.getMaterial()->getIndexOfRefraction(), hitTransparentr);
+				Ray rayTransparent(h.getIntersectionPoint(), transmittedDir);
+				Hit hitTransparent(FLT_MAX, nullptr, Vec3f());// 从碰撞点发起折射光线迭代跟踪
+				color += h.getMaterial()->getTransparentrColor() * traceRay(rayTransparent, EPSILON, bounces + 1,
+					weight * h.getMaterial()->getTransparentrColor().Length(), indexT, hitTransparent);
+
+				if (DEBUG_RAY) RayTree::AddTransmittedSegment(rayTransparent, EPSILON, hitTransparent.getT());
 			}
+
 		}
 	}
 	return color;
@@ -245,14 +269,18 @@ void RayTracer::renderRayTracing(void)
 		{
 			for (int j = 0; j < height; j++)
 			{
-				/*if (i == 266 && j == 130) {
+
+				if (i == 100 && j == 40) {
 					cout << "pause" << endl;
-				}*/
-				Vec3f color = scene->getBackgroundColor(), normal = Vec3f();// 设置环境光
+				}
+				cout << "\r" << fixed << setprecision(2) << 100.0f * (i * width + j + 1) / (width * height) << "%";
+				Vec3f color(0.0f, 0.0f, 0.0f);// 设置环境光
 				Ray r = scene->getCamera()->generateRay(Vec2f(i / (float)width, j / (float)height));
 				Hit h(FLT_MAX, nullptr, Vec3f());
-				if (DEBUG_LOG)cout << Vec3f(i, j, 0) << ":" << r << " intersect with ";
+				if (DEBUG_LOG)cout << Vec3f(i, j, 0) << ":" << r << " return ";
 				color += traceRay(r, scene->getCamera()->getTMin(), 0, 1.0f, 1.0f, h);// 进行光线跟踪
+				//if (i == 100 && j == 40) color = Vec3f(1.0f, 1.0f, 1.0f);
+				//if (color.r() > 1.0f || color.g() > 1.0f || color.b() > 1.0f)cout << "RayTracer::WARNING: color at pixel(" << i << "," << j << ") is out of range" << endl;
 				if (output_mode)
 				{
 					image_output->SetPixel(i, j, color);
@@ -264,10 +292,12 @@ void RayTracer::renderRayTracing(void)
 				}
 				if (normal_mode)
 				{
-					Vec3f n = normal;
+					Vec3f n = h.getNormal();
+					//if (shade_back && r.getDirection().Dot3(n) < 0)n.Negate();
 					n.Set(fabs(n.r()), fabs(n.g()), fabs(n.b()));
 					image_normal->SetPixel(i, j, n);
 				}
+				if (DEBUG_LOG)cout << "Color:" << color << endl;
 			}
 		}
 		if (output_mode)image_output->SaveTGA(output_file);
@@ -275,4 +305,15 @@ void RayTracer::renderRayTracing(void)
 		if (normal_mode)image_normal->SaveTGA(normal_file);
 	}
 	else cout << "RayTracer::WARNING: No render mode is specified(output,depth,normal)" << endl;
+}
+
+void RayTracer::renderRayDebug(float x, float y)
+{
+	Ray r = scene->getCamera()->generateRay(Vec2f(x, y));
+	Hit h(FLT_MAX, nullptr, Vec3f());
+	if (DEBUG_LOG)cout << Vec3f(x, y, 0) << ":" << r << " ray debugging";
+	DEBUG_RAY = true; 
+	traceRay(r, scene->getCamera()->getTMin(), 0, 1.0f, 1.0f, h);
+	RayTree::SetMainSegment(r, 0, h.getT());
+	DEBUG_RAY = false;
 }

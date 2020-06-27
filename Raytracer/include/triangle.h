@@ -1,7 +1,7 @@
 #pragma once
 #include "object3d.h"
 
-class Triangle : public Object3D {
+class Triangle : public Primitive {
 public:
 	Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m);
 	~Triangle();

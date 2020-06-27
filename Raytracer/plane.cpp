@@ -48,6 +48,11 @@ bool Plane::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 	return false;
 }
 
+//bool Plane::intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3f& color)
+//{
+//	this->intersect()
+//}
+
 void Plane::paint(void)
 {
 	// shading

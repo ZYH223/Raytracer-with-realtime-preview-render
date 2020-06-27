@@ -7,6 +7,7 @@ public:
 	Transform(Matrix& m, Object3D* o);
 	~Transform();
 	virtual bool intersect(const Ray &r, Hit &h, float tmin, float tmax);
+	virtual bool intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3f& color);
 	virtual void paint(void);
 private:
 	Object3D* object;

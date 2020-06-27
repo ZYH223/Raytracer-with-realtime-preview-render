@@ -15,7 +15,8 @@ void handleParameter(
 	char *&normal_file,
 	bool &diffuse_mode, bool &depth_mode, bool &normal_mode, bool &shade_back,
 	int &theta, int &phi,
-	bool &gui, bool &gouraud)
+	bool &gui, bool &gouraud,
+	int &max_bounces, float &cutoff_weight, bool &shadows)
 {
 	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "-input")) {
@@ -62,6 +63,17 @@ void handleParameter(
 		else if (!strcmp(argv[i], "-gouraud")) {
 			gouraud = true;
 		}
+		else if (!strcmp(argv[i], "-shadows")) {
+			shadows = true;
+		}
+		else if (!strcmp(argv[i], "-bounces")) {
+			i++; assert(i < argc);
+			max_bounces = atoi(argv[i]);
+		}
+		else if (!strcmp(argv[i], "-weight")) {
+			i++; assert(i < argc);
+			cutoff_weight = atof(argv[i]);
+		}
 		else {
 			printf("whoops error with command line argument %d: '%s'\n", i, argv[i]);
 			assert(0);
@@ -71,12 +83,13 @@ void handleParameter(
 
 void rayTracerRender()
 {
-	RayTracer::getInstance().renderRayCast();
+	//RayTracer::getInstance().renderRayCast();
+	RayTracer::getInstance().renderRayTracing();
 }
 
 void rayTracerTracing(float x, float y)
 {
-	//RayTracer::getInstance().traceRay();
+	RayTracer::getInstance().renderRayDebug(x, y);
 }
 
 int main(int argc, char *argv[]) {
@@ -91,49 +104,53 @@ int main(int argc, char *argv[]) {
 	bool output_mode = false, depth_mode = false, normal_mode = false, shade_back = false;
 	int tessellationTheta = 10, tessellationPhi = 5;
 	bool gui = false, gouraud = false;
+	int max_bounces = 1; float cutoff_weight = EPSILON; bool shadows = false;
 
 	// 以下用于调试程序时模拟输入参数
 	if (DEBUG) 
 	{
 		const int filename_buffer_length = 64;
 		input_file = new char[filename_buffer_length];
-		strcpy_s(input_file, filename_buffer_length, "Input/scene4_01_sphere_shadow.txt");
-		width = 300, height = 300;
+		strcpy_s(input_file, filename_buffer_length, "Input/Test.txt");
+		width = 200, height = 200;
 		if (DEBUG_LOG) 
 		{
-			width = 32, height = 32;
+			width = 200, height = 200;
 		}
-		output_mode = true, depth_mode = false, normal_mode = false, shade_back = false;
+		output_mode = true, depth_mode = false, normal_mode = false, shade_back = true;
 		if (output_mode) 
 		{
 			output_file = new char[filename_buffer_length];
-			strcpy_s(output_file, filename_buffer_length, "Output/scene4_01.tga");
+			strcpy_s(output_file, filename_buffer_length, "Output/test.tga");
 		}
 		if (depth_mode) 
 		{
 			depth_min = 9;
 			depth_max = 11;
 			depth_file = new char[filename_buffer_length];
-			strcpy_s(depth_file, filename_buffer_length, "Output/depth.tga");
+			strcpy_s(depth_file, filename_buffer_length, "Output/depth4_05.tga");
 		}
 		if (normal_mode) 
 		{
 			normal_file = new char[filename_buffer_length];
-			strcpy_s(normal_file, filename_buffer_length, "Output/normals.tga");
+			strcpy_s(normal_file, filename_buffer_length, "Output/normals4_05_2.tga");
 		}
-		gui = false;
-		tessellationTheta = 10;
-		tessellationPhi = 5;
-		gouraud = false;
+		gui = true;
+		tessellationTheta = 30;
+		tessellationPhi = 15;
+		gouraud = true;
+		max_bounces = 2;
+		cutoff_weight = 0.01f;
+		shadows = true;
 	}
 	else // 从控制台输入参数
 	{
-		handleParameter(argc, argv, input_file, width, height, output_file, depth_file, depth_min, depth_max, normal_file, output_mode, depth_mode, normal_mode, shade_back, tessellationTheta, tessellationPhi, gui, gouraud);
+		handleParameter(argc, argv, input_file, width, height, output_file, depth_file, depth_min, depth_max, normal_file, output_mode, depth_mode, normal_mode, shade_back, tessellationTheta, tessellationPhi, gui, gouraud, max_bounces, cutoff_weight, shadows);
 	}
 
 	SceneParser *scene = new SceneParser(input_file);
 	RayTracer *raytracer = &(RayTracer::getInstance());
-	raytracer->initialize(width, height, scene, 100, 10.0f, true);
+	raytracer->initialize(width, height, scene, max_bounces, cutoff_weight, shadows);
 	if (output_mode)raytracer->setOutput(output_file, shade_back);
 	if (depth_mode)raytracer->setDepth(depth_file, depth_min, depth_max);
 	if (normal_mode)raytracer->setNormal(normal_file);
@@ -147,7 +164,7 @@ int main(int argc, char *argv[]) {
 	}
 	else
 	{
-		raytracer->renderRayCast();
+		raytracer->renderRayTracing();
 	}
 
 	if (DEBUG)

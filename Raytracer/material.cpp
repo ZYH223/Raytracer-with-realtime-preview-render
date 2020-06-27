@@ -72,7 +72,11 @@ void PhongMaterial::glSetMaterial(void) const {
 
 Vec3f PhongMaterial::Shade(const Ray &ray, const Hit &hit, const Vec3f &dirToLight, const Vec3f &lightColor, const float &disToLight) const
 {
-	float attenuation = isfinite(disToLight) ? 1.0f/(disToLight* disToLight) : 1.0f;// 因为目前只有Directional Light，所以暂时不考虑到光源的距离r带来的衰减
+	// 衰减在光源处做了处理，这里不再处理
+	float attenuation = 1.0f;// 常数衰减（无衰减）
+	//float attenuation = isfinite(disToLight) ? 1.0f / sqrt(disToLight) : 1.0f;// 开
+	//float attenuation = isfinite(disToLight) ? 1.0f/(disToLight) : 1.0f;// 线性反比的衰减系数
+	//float attenuation = isfinite(disToLight) ? 1.0f/(disToLight*disToLight) : 1.0f;// 平方反比的衰减系数
 	// Blinn-Torrance方法，借助半程向量计算镜面反射项
 	Vec3f h = -1.0f*ray.getDirection() + dirToLight;
 	h.Normalize();
