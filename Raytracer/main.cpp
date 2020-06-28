@@ -3,7 +3,7 @@
 #include "rayTracer.h"
 #include "Sphere.h"
 using namespace std;
-const bool DEBUG = true;
+const bool DEBUG = false;
 const bool DEBUG_LOG = false;
 
 void handleParameter(
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
 		if (output_mode) 
 		{
 			output_file = new char[filename_buffer_length];
-			strcpy_s(output_file, filename_buffer_length, "Output/test.tga");
+			strcpy_s(output_file, filename_buffer_length, "Output/test1.tga");
 		}
 		if (depth_mode) 
 		{
@@ -135,11 +135,11 @@ int main(int argc, char *argv[]) {
 			normal_file = new char[filename_buffer_length];
 			strcpy_s(normal_file, filename_buffer_length, "Output/normals4_05_2.tga");
 		}
-		gui = true;
+		gui = false;
 		tessellationTheta = 30;
 		tessellationPhi = 15;
 		gouraud = true;
-		max_bounces = 2;
+		max_bounces = 5;
 		cutoff_weight = 0.01f;
 		shadows = true;
 	}

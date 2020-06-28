@@ -60,6 +60,7 @@ bool Transform::intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, 
 		transposedInversedMatrix.Transform(n);
 		n.Normalize();
 		h.set(h.getT() / tScale, h.getMaterial(), n, r);
+		//if (h.getMaterial()->getTransparentColor().Length() > EPSILON && r.getDirection().Dot3(h.getNormal()) > 0)color = (1.0f / tScale) * color;
 		return true;
 	}
 	return false;

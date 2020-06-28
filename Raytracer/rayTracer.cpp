@@ -221,7 +221,7 @@ Vec3f RayTracer::traceRay(Ray& r, float tmin, int bounces, float weight, float i
 			if (shadows)// 先检查是否需要渲染阴影
 			{
 				bool intersected = scene->getGroup()->intersectShadowRay(rayShadow, hitShadow, distanceToLight, lightColor);// 获取是否命中
-				if(!intersected || fabs(hitShadow.getT() - distanceToLight) < EPSILON)// 如果未命中或者未遮挡，则用Phong材质进行着色（实际上只要t = distanceToLight也就说有光线能够到达光源即可）
+				if(!intersected || hitShadow.getMaterial()->getTransparentColor().Length() > EPSILON/*isinf(hitShadow.getT()) || fabs(hitShadow.getT() - distanceToLight) < EPSILON*/)// 如果未命中或者未遮挡，则用Phong材质进行着色（实际上只要t = distanceToLight也就说有光线能够到达光源即可）
 					color += h.getMaterial()->Shade(r, h, directionToLight, lightColor, distanceToLight);// 如果没有被完全遮挡(未被遮挡或被透明材质遮挡），
 			}
 
@@ -231,12 +231,15 @@ Vec3f RayTracer::traceRay(Ray& r, float tmin, int bounces, float weight, float i
 		{
 			Ray rayReflection(h.getIntersectionPoint(), mirrorDirection(h.getNormal(), r.getDirection()));//从碰撞点发出新的射线
 			Hit hitReflection(FLT_MAX, nullptr, Vec3f());
-			color += h.getMaterial()->getReflectColor() * traceRay( rayReflection, EPSILON, bounces + 1, // 用新的射线进行迭代跟踪
-				weight * h.getMaterial()->getReflectColor().Length(), h.getMaterial()->getIndexOfRefraction(), hitReflection);
+			Vec3f reflect = h.getMaterial()->getReflectColor();
+			Vec3f shilick = reflect + (Vec3f(1.0f, 1.0f, 1.0f) - reflect) * pow(1 - rayReflection.getDirection().Dot3(h.getNormal()), 1);
+			//cout << shilick << "-" << reflect << endl;
+			color += shilick * traceRay( rayReflection, EPSILON, bounces + 1, // 用新的射线进行迭代跟踪
+				weight * shilick.Length(), h.getMaterial()->getIndexOfRefraction(), hitReflection);
 
 			if (DEBUG_RAY) RayTree::AddReflectedSegment(rayReflection, EPSILON, hitReflection.getT());
 		}
-		if (h.getMaterial()->getTransparentrColor().Length() > EPSILON)// 如果具有折射/透明材质
+		if (h.getMaterial()->getTransparentColor().Length() > EPSILON)// 如果具有折射/透明材质
 		{
 			Vec3f transmittedDir;
 			float indexT = inside ? 1.0f : h.getMaterial()->getIndexOfRefraction();// 如果是内部，则将出射介质折射率设为1.0（暂不考虑不同介质之间的折射，只考虑介质和真空）
@@ -245,8 +248,8 @@ Vec3f RayTracer::traceRay(Ray& r, float tmin, int bounces, float weight, float i
 			{
 				Ray rayTransparent(h.getIntersectionPoint(), transmittedDir);
 				Hit hitTransparent(FLT_MAX, nullptr, Vec3f());// 从碰撞点发起折射光线迭代跟踪
-				color += h.getMaterial()->getTransparentrColor() * traceRay(rayTransparent, EPSILON, bounces + 1,
-					weight * h.getMaterial()->getTransparentrColor().Length(), indexT, hitTransparent);
+				color += h.getMaterial()->getTransparentColor() * traceRay(rayTransparent, EPSILON, bounces + 1,
+					weight * h.getMaterial()->getTransparentColor().Length(), indexT, hitTransparent);
 
 				if (DEBUG_RAY) RayTree::AddTransmittedSegment(rayTransparent, EPSILON, hitTransparent.getT());
 			}
@@ -270,10 +273,10 @@ void RayTracer::renderRayTracing(void)
 			for (int j = 0; j < height; j++)
 			{
 
-				/*if (i == 100 && j == 40) {
+				/*if (i == 0 && j == 15) {
 					cout << "pause" << endl;
 				}*/
-				cout << "\r" << fixed << setprecision(2) << 100.0f * (i * width + j + 1) / (width * height) << "%";
+				if(!DEBUG_LOG)cout << "\r" << fixed << setprecision(2) << 100.0f * (i * width + j + 1) / (width * height) << "%";
 				Vec3f color(0.0f, 0.0f, 0.0f);// 设置环境光
 				Ray r = scene->getCamera()->generateRay(Vec2f(i / (float)width, j / (float)height));
 				Hit h(FLT_MAX, nullptr, Vec3f());

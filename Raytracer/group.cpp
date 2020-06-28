@@ -49,16 +49,47 @@ bool Group::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 	return hit_something;
 }
 
+//bool Group::intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3f& color)
+//{
+//	bool hit_something = false;
+//	for (int i = 0; i < list_size; i++)
+//	{
+//		if (list[i]->intersectShadowRay(r, h, distanceToLight, color))// 命中
+//		{
+//			hit_something = true;
+//			if (h.getMaterial()->getTransparentColor().Length() > EPSILON/*fabs(h.getT() - distanceToLight) > EPSILON*/)return hit_something;// 如果命中且遮挡，直接返回
+//		}
+//	}
+//	return hit_something;
+//}
+
 bool Group::intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3f& color)
 {
 	bool hit_something = false;
-	for (int i = 0; i < list_size; i++)
+	//for (int i = 0; i < list_size; i++)
+	//{
+	//	if (list[i]->intersectShadowRay(r, h, distanceToLight, color))// 命中
+	//	{
+	//		hit_something = true;
+	//		if (h.getMaterial()->getTransparentColor().Length() > EPSILON/*fabs(h.getT() - distanceToLight) > EPSILON*/)return hit_something;// 如果命中且遮挡，直接返回
+	//	}
+	//}
+	Hit tempH(h);
+	float current_t = EPSILON;
+	while (intersect(r, tempH, current_t, distanceToLight))
 	{
-		if (list[i]->intersectShadowRay(r, h, distanceToLight, color))// 命中
+		hit_something = true;
+		if (tempH.getMaterial()->getTransparentColor().Length() < EPSILON) 
 		{
-			hit_something = true;
-			if (fabs(h.getT() - distanceToLight) > EPSILON)return hit_something;// 如果命中且遮挡，直接返回
+			h.set(tempH.getT(), tempH.getMaterial(), tempH.getNormal(), r);
+			break;
 		}
+		if (tempH.getNormal().Dot3(r.getDirection()) > 0)
+		{
+			color = 0.5f / (tempH.getT() - h.getT()) * color * tempH.getMaterial()->getTransparentColor();
+		}
+		h.set(tempH.getT(), tempH.getMaterial(), tempH.getNormal(), r);
+		current_t = tempH.getT()+EPSILON;
 	}
 	return hit_something;
 }
