@@ -6,6 +6,7 @@ RayTracer::RayTracer()
 {
 	width = 200, height = 200;
 	scene = nullptr;
+	grid = nullptr;
 	output_mode = false, output_file = nullptr, shade_back = true;
 	depth_mode = false, depth_file = nullptr, depth_min = 0, depth_max = FLT_MAX;
 	normal_mode = false, normal_file = nullptr;
@@ -16,7 +17,7 @@ RayTracer::RayTracer()
 
 RayTracer& RayTracer::getInstance()
 {
-	static RayTracer instance;// 局部静态变量自动创建和回收，设计思路虽然比较奇怪，但是比较有效
+	static RayTracer instance;// 局部静态变量自动创建和回收，设计思路虽然比较奇怪，但是简单有效
 	return instance;
 }
 
@@ -33,6 +34,8 @@ void RayTracer::initialize(int width, int height, SceneParser* scene, int max_bo
 	this->width = width;
 	this->height = height;
 	this->scene = scene;
+	grid = new Grid(this->scene->getGroup()->getBoundingBox(), 16, 16, 16);
+	this->scene->getGroup()->insertIntoGrid(grid, nullptr);
 	this->max_bounces = max_bounces;
 	this->cutoff_weight = cutoff_weight;
 	this->shadows = shadows;
@@ -43,6 +46,7 @@ RayTracer::~RayTracer()
 	if (image_output != nullptr)delete image_output;
 	if (image_depth != nullptr)delete image_depth;
 	if (image_normal != nullptr)delete image_normal;
+	if (grid != nullptr)delete grid;
 }
 
 void RayTracer::setOutput(char *output_file, bool shade_back = false)
@@ -103,7 +107,7 @@ void RayTracer::renderRayCast(void)
 				Vec3f color = scene->getBackgroundColor(), normal = Vec3f();// 设置环境光
 				Ray r = scene->getCamera()->generateRay(Vec2f(i / (float)width, j / (float)height));
 				Hit h(FLT_MAX, nullptr, Vec3f());
-				if (DEBUG_LOG)cout << Vec3f(i, j, 0) << ":" << r << " intersect with ";
+				if (DEBUG_LOG)cout << Vec3f((float)i, (float)j, 0) << ":" << r << " intersect with ";
 				if (scene->getGroup()->intersect(r, h, scene->getCamera()->getTMin(), FLT_MAX))
 				{
 					if (DEBUG_LOG)cout << h.getIntersectionPoint() << " and return " << h << endl;
@@ -280,7 +284,7 @@ void RayTracer::renderRayTracing(void)
 				Vec3f color(0.0f, 0.0f, 0.0f);// 设置环境光
 				Ray r = scene->getCamera()->generateRay(Vec2f(i / (float)width, j / (float)height));
 				Hit h(FLT_MAX, nullptr, Vec3f());
-				if (DEBUG_LOG)cout << Vec3f(i, j, 0) << ":" << r << " return ";
+				if (DEBUG_LOG)cout << Vec3f((float)i, (float)j, 0) << ":" << r << " return ";
 				color += traceRay(r, scene->getCamera()->getTMin(), 0, 1.0f, 1.0f, h);// 进行光线跟踪
 				//if (i == 100 && j == 40) color = Vec3f(1.0f, 1.0f, 1.0f);
 				//if (color.r() > 1.0f || color.g() > 1.0f || color.b() > 1.0f)cout << "RayTracer::WARNING: color at pixel(" << i << "," << j << ") is out of range" << endl;

@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="BoundingBox" Collapsed="true">
+    <Position X="14.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EAgAEAAQAAAQBABAAAAIAAAAACAAAAAAAAAAAAAEAAA=</HashCode>
+      <FileName>include\boundingbox.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Camera" Collapsed="true">
+    <Position X="6.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAoAAAACAAABAAAAAAAAAAAAAIAQAAA=</HashCode>
+      <FileName>include\camera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="OrthographicCamera" Collapsed="true">
+    <Position X="5.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gCgAAGAAAAAAIAoAAIACAgABAAAAAAAAAAAAAoAQAAA=</HashCode>
+      <FileName>include\camera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PerspectiveCamera" Collapsed="true">
+    <Position X="7.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAgAAGAAAAAAIAoAAAAiAgABAAAAAAAAAAAAAoAQAIA=</HashCode>
+      <FileName>include\camera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GLCanvas" Collapsed="true">
+    <Position X="20" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAgIAAJAAAABAIEAAMAAIAECAAAAAAAAAAAQAAA=</HashCode>
+      <FileName>include\glCanvas.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Grid" Collapsed="true">
+    <Position X="10.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAgkAgAAAAAAAAAABAIABAACBAAAACAAQAAAAAAIARA=</HashCode>
+      <FileName>include\grid.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Group" Collapsed="true">
+    <Position X="10.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAggAkAAAAAAAAACAAAEAAAABAAAAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>include\group.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Hit" Collapsed="true">
+    <Position X="14.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAACIAAAAAAAAYAAggAAAAAAAAAAAQBAABEAAA=</HashCode>
+      <FileName>include\hit.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Image" Collapsed="true">
+    <Position X="16.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABABAABEAAAAQARAAAAEAAAEAAABIABABQAAAAAgA=</HashCode>
+      <FileName>include\image.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Light" Collapsed="true">
+    <Position X="1.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAEAAAAgAAAAAAAAAAAAAAAAAQAAA=</HashCode>
+      <FileName>include\light.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DirectionalLight" Collapsed="true">
+    <Position X="0.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAIAAAEAAQAAAAAAAAAACAAAAAAAAQAAA=</HashCode>
+      <FileName>include\light.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PointLight" Collapsed="true">
+    <Position X="2.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AADgAAAAAAAAABAAEAAAIAAAAAAAAACAAAAAIAAQAAA=</HashCode>
+      <FileName>include\light.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Material" Collapsed="true">
+    <Position X="0.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QECAAAAAIACEAAAAAAAAAQEAAAAAAAAAAgAAAAAAAAA=</HashCode>
+      <FileName>include\material.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PhongMaterial" Collapsed="true">
+    <Position X="0.5" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAIAAAAAJAAEAAAAAAAAAQEgAIAQAAIAAgAAAAAAAAA=</HashCode>
+      <FileName>include\material.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Matrix" Collapsed="true">
+    <Position X="18.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAgAAAAUABgBAAAIIAYwgAACgAQAgAAAwAAlAAAA=</HashCode>
+      <FileName>include\matrix.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Object3D">
+    <Position X="6.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAABAAAACAAAAAABAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>include\object3d.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Primitive">
+    <Position X="3.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>include\object3d.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Plane" Collapsed="true">
+    <Position X="1" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAAAAoAAAAgABEAAAAAAAEIAAABAAAA=</HashCode>
+      <FileName>include\plane.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Ray" Collapsed="true">
+    <Position X="20" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAgAAAAAqAAAAAAAAAAAAAAAAAAAAAAAAACAAAA=</HashCode>
+      <FileName>include\ray.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Segment" Collapsed="true">
+    <Position X="20" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAgAAAAAAAAAAAEAAAAAAAAAAAAgAQAAAABEAAA=</HashCode>
+      <FileName>include\rayTree.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SegmentVector" Collapsed="true">
+    <Position X="14.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAAAAAAAAAAAIAAIQIAAAAAAAAAAAAAAAJACBA=</HashCode>
+      <FileName>include\rayTree.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CellFace" Collapsed="true">
+    <Position X="16.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAACEAAAAAAAAAAAgAAAAAAACkAQAAAABAAAA=</HashCode>
+      <FileName>include\rayTree.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CellFaceVector" Collapsed="true">
+    <Position X="18.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAACACAACIAAAAAAACAAAAAAAAAQAABEAAA=</HashCode>
+      <FileName>include\rayTree.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RayTree" Collapsed="true">
+    <Position X="16.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIogAAAgAABAABhAAgEAQAEAAAAIEAAAABAAFIBEAAA=</HashCode>
+      <FileName>include\rayTree.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SceneParser" Collapsed="true">
+    <Position X="18.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAIAwADMAxEAIBAwAA6AAAAcAQIFIiCAFACAFIBCAAA=</HashCode>
+      <FileName>include\scene_parser.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Sphere" Collapsed="true">
+    <Position X="3.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAACAACAAAAIAQAAAAABAAAAGAAAAQAAABIAAA=</HashCode>
+      <FileName>include\sphere.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Transform" Collapsed="true">
+    <Position X="10.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAggIAAAACIAAAAAAAAAACQABBAAAAAAAAAAAAAAAIA=</HashCode>
+      <FileName>include\transform.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Triangle" Collapsed="true">
+    <Position X="5.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AggAAAAAAAAAAAABAAAAAAAABAAAAACgAQAAAABAAAA=</HashCode>
+      <FileName>include\triangle.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Vec2f" Collapsed="true">
+    <Position X="16.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACJAAAIAAQAABABACAIAAQBAAAEEAAAAAAB0AiEAAAQ=</HashCode>
+      <FileName>include\vectors.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Vec3f" Collapsed="true">
+    <Position X="18.25" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACJAAAQBARAABBBAEAIAAQBAAAEEAAAIAQH1AxEAAAQ=</HashCode>
+      <FileName>include\vectors.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Vec4f" Collapsed="true">
+    <Position X="20" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACJAiAAAAQAABABAEAIAAQBAAAEEAAAoAQj1A7EAAAw=</HashCode>
+      <FileName>include\vectors.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RayTracer" Collapsed="true">
+    <Position X="14.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IADEAIiCgAIBkAQYYAEgoMEAAACAARRAAAAEAAAAIAg=</HashCode>
+      <FileName>rayTracer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Typedef Name="PFNWGLGETPROCADDRESSPROC_PRIVATE" Collapsed="true">
+    <Position X="16.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>glad.c</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Typedef Name="PFNGLXGETPROCADDRESSPROC_PRIVATE" Collapsed="true">
+    <Position X="14.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>glad.c</FileName>
+    </TypeIdentifier>
+  </Typedef>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>

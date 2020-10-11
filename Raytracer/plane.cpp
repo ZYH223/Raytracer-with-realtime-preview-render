@@ -24,6 +24,7 @@ Plane::Plane(Vec3f &n, float d, Material *m)
 		p[i][1] = point[i].y();
 		p[i][2] = point[i].z();
 	}
+	bb = nullptr;
 }
 
 Plane::~Plane()

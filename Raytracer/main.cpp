@@ -3,7 +3,7 @@
 #include "rayTracer.h"
 #include "Sphere.h"
 using namespace std;
-const bool DEBUG = false;
+const bool DEBUG = true;
 const bool DEBUG_LOG = false;
 
 void handleParameter(
@@ -36,9 +36,9 @@ void handleParameter(
 		}
 		else if (!strcmp(argv[i], "-depth")) {
 			i++; assert(i < argc);
-			depth_min = atof(argv[i]);
+			depth_min = (float)atof(argv[i]);
 			i++; assert(i < argc);
-			depth_max = atof(argv[i]);
+			depth_max = (float)atof(argv[i]);
 			i++; assert(i < argc);
 			depth_file = argv[i];
 			depth_mode = true;
@@ -72,7 +72,7 @@ void handleParameter(
 		}
 		else if (!strcmp(argv[i], "-weight")) {
 			i++; assert(i < argc);
-			cutoff_weight = atof(argv[i]);
+			cutoff_weight = (float)atof(argv[i]);
 		}
 		else {
 			printf("whoops error with command line argument %d: '%s'\n", i, argv[i]);
@@ -94,8 +94,8 @@ void rayTracerTracing(float x, float y)
 
 int main(int argc, char *argv[]) {
 	char *input_file = nullptr;
-	int width = 100;
-	int height = 100;
+	int width = 200;
+	int height = 200;
 	char *output_file = nullptr;
 	float depth_min = -FLT_MAX;
 	float depth_max = FLT_MAX;
@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
 	{
 		const int filename_buffer_length = 64;
 		input_file = new char[filename_buffer_length];
-		strcpy_s(input_file, filename_buffer_length, "Input/Test.txt");
+		strcpy_s(input_file, filename_buffer_length, "Input/scene5_01_sphere.txt");
 		width = 200, height = 200;
 		if (DEBUG_LOG) 
 		{
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
 		if (output_mode) 
 		{
 			output_file = new char[filename_buffer_length];
-			strcpy_s(output_file, filename_buffer_length, "Output/test1.tga");
+			strcpy_s(output_file, filename_buffer_length, "Output/scene5_01.tga");
 		}
 		if (depth_mode) 
 		{
@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
 	if (gui)
 	{
 		GLCanvas* canvas = new GLCanvas();
-		canvas->initialize(scene, rayTracerRender, rayTracerTracing);
+		canvas->initialize(scene, rayTracerRender, rayTracerTracing, nullptr, false);
 		delete canvas;
 	}
 	else

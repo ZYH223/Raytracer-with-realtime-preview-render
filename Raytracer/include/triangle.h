@@ -1,5 +1,5 @@
 #pragma once
-#include "object3d.h"
+#include "primitive.h"
 
 class Triangle : public Primitive {
 public:

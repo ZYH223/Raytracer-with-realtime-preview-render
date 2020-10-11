@@ -6,12 +6,20 @@ Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m)
 	this->b = b;
 	this->c = c;
 	material = m;
+	bb = new BoundingBox(
+		Vec3f(std::min(a.x(), std::min(b.x(), c.x()) ),
+			std::min(a.y(), std::min(b.y(), c.y()) ),
+			std::min(a.z(), std::min(b.z(), c.z()) )),
+		Vec3f(std::max(a.x(), std::max(b.x(), c.x()) ),
+			std::max(a.y(), std::max(b.y(), c.y()) ),
+			std::max(a.z(), std::max(b.z(), c.z())) )
+	);
 }
 
 Triangle::~Triangle()
 {
-	//释放内存的工作交给scene_parser来做
-	//delete material;
+	//释放material的工作交给scene_parser来做
+	delete bb;
 }
 
 bool Triangle::intersect(const Ray &r, Hit &h, float tmin, float tmax)// 先与平面求交

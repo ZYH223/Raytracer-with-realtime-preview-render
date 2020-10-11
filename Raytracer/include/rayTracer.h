@@ -4,6 +4,7 @@
 #include "ray.h"
 #include "hit.h"
 #include "group.h"
+#include "grid.h"
 #include "camera.h"
 #include "scene_parser.h"
 
@@ -25,6 +26,7 @@ private:
 	RayTracer();
 	int width, height;
 	SceneParser *scene;
+	Grid* grid;
 	bool output_mode; char *output_file; bool shade_back;
 	bool depth_mode; char *depth_file; float depth_min; float depth_max;
 	bool normal_mode; char *normal_file;

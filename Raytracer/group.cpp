@@ -9,6 +9,15 @@ Group::Group(int n)
 	{
 		list[i] = nullptr;
 	}
+	//bb = new BoundingBox(Vec3f(), Vec3f()); 不能初始化为(0,0,0)
+	/*if (list_size > 0) {
+		bb = new BoundingBox(list[0]->getBoundingBox()->getMin(), list[0]->getBoundingBox()->getMax());
+		for (int i = 1; i < list_size; i++) {
+			if(list[i]->getBoundingBox() != nullptr) bb->Extend(list[i]->getBoundingBox());
+		}
+	}
+	else bb = nullptr;*/
+	bb = nullptr;
 }
 
 Group::~Group()
@@ -18,6 +27,7 @@ Group::~Group()
 		delete[]list[i];
 	}
 	delete[]list;
+	delete bb;
 }
 
 void Group::addObject(int index, Object3D *obj)
@@ -32,6 +42,12 @@ void Group::addObject(int index, Object3D *obj)
 		delete[] list[index];
 	}
 	list[index] = obj;
+	if (bb == nullptr) {
+		bb = new BoundingBox(obj->getBoundingBox()->getMin(), obj->getBoundingBox()->getMax());// 为了防止奇异情况，用第一个图元的bb作为起始
+	}
+	else if (obj->getBoundingBox() != nullptr) {// 防止包含平面、空group的bb（他们的bb都是nullptr）
+		bb->Extend(obj->getBoundingBox());
+	}
 }
 
 bool Group::intersect(const Ray &r, Hit &h, float tmin, float tmax)
@@ -92,6 +108,13 @@ bool Group::intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3
 		current_t = tempH.getT()+EPSILON;
 	}
 	return hit_something;
+}
+
+void Group::insertIntoGrid(Grid* g, Matrix* m) {
+	for (int i = 0; i < list_size; i++)
+	{
+		list[i]->insertIntoGrid(g, m);
+	}
 }
 
 void Group::paint(void) {

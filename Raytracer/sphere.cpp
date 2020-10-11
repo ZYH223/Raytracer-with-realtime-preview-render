@@ -11,7 +11,8 @@ Sphere::Sphere(Vec3f c, float r, Material* m)
 	center = c;
 	//material =  new Material(*m);
 	material = m;
-
+	const Vec3f temp(radius, radius, radius);
+	bb = new BoundingBox(center - temp, center + temp);
 	// default initiallize the parameters for tessellation
 	/*theta = deg2rad(36.0f);
 	phi = deg2rad(18.0f);*/
@@ -19,8 +20,8 @@ Sphere::Sphere(Vec3f c, float r, Material* m)
 
 Sphere::~Sphere()
 {
-	//释放内存的工作交给scene_parser来做
-	//delete material;
+	//释放material的工作交给scene_parser来做
+	delete bb;
 }
 
 bool Sphere::intersect(const Ray &r, Hit &h, float tmin, float tmax)
@@ -79,6 +80,26 @@ bool Sphere::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 	 //}
 	 //return false;
 #pragma endregion
+}
+
+void Sphere::insertIntoGrid(Grid* g, Matrix* m)
+{
+	Vec3f length = g->GetLength();
+	float lenx = length.x(), leny = length.y(), lenz = length.z();
+	// 怎样高效地指出占据的网格？
+	float mx = (floor(radius / lenx) + 0.5f) * lenx, my = (floor(radius / leny) + 0.5f) * leny, mz = (floor(radius / lenz) + 0.5f) * lenz;
+	/*for (float x = mx < g->getBoundingBox(); i < )*/
+	for (int i = 0; i < g->CellNumX(); i++)
+	{
+		for (int j = 0; j < g->CellNumY(); j++)
+		{
+			for (int k = 0; k < g->CellNumZ(); k++)
+			{
+				Vec3f dis((i + 0.5f) * lenx, (j + 0.5f) * leny, (k + 0.5f) * lenz);// 计算当前单元格与球心的距离
+				if ((dis - center).Length() - radius < EPSILON)g->SetCell(i, j, k, true);
+			}
+		}
+	}
 }
 
 void Sphere::SetTessellationParameters(int theta_step, int phi_step, bool isgouraud = false)
