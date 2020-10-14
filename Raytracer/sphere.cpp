@@ -86,17 +86,18 @@ void Sphere::insertIntoGrid(Grid* g, Matrix* m)
 {
 	Vec3f length = g->GetLength();
 	float lenx = length.x(), leny = length.y(), lenz = length.z();
-	// 怎样高效地指出占据的网格？
-	float mx = (floor(radius / lenx) + 0.5f) * lenx, my = (floor(radius / leny) + 0.5f) * leny, mz = (floor(radius / lenz) + 0.5f) * lenz;
+	// 怎样高效地指出占据的网格？（遍历代价有点高）
+	float mx = g->CellNumX(), my = g->CellNumY(), mz = g->CellNumZ();
+	//float mx = (floor(radius / lenx) + 0.5f) * lenx, my = (floor(radius / leny) + 0.5f) * leny, mz = (floor(radius / lenz) + 0.5f) * lenz;
 	/*for (float x = mx < g->getBoundingBox(); i < )*/
-	for (int i = 0; i < g->CellNumX(); i++)
+	for (int i = 0; i < mx; i++)
 	{
-		for (int j = 0; j < g->CellNumY(); j++)
+		for (int j = 0; j < my; j++)
 		{
-			for (int k = 0; k < g->CellNumZ(); k++)
+			for (int k = 0; k < mz; k++)
 			{
-				Vec3f dis((i + 0.5f) * lenx, (j + 0.5f) * leny, (k + 0.5f) * lenz);// 计算当前单元格与球心的距离
-				if ((dis - center).Length() - radius < EPSILON)g->SetCell(i, j, k, true);
+				Vec3f cellCenter((i - mx/2.0f + 0.5f) * lenx, (j - my/2.0f + 0.5f) * leny, (k - mz/2.0f + 0.5f) * lenz);// 计算当前单元格与球心的距离
+				if ((cellCenter - center).Length() - radius < EPSILON)g->SetCell(i, j, k, true);
 			}
 		}
 	}

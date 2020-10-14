@@ -7,6 +7,7 @@ public:
 	~Triangle();
 	virtual bool intersect(const Ray &r, Hit &h, float tmin, float tmax);
 	virtual void paint(void);
+	virtual void insertIntoGrid(Grid* g, Matrix* m);
 protected:
 	Material* material;
 	Vec3f a, b, c;

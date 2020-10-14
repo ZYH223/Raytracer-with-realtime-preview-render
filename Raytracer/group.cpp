@@ -34,7 +34,7 @@ void Group::addObject(int index, Object3D *obj)
 {
 	if (index >= list_size || index < 0)
 	{
-		std::cout << "Index: " << index << " is out of range[0," << (list_size - 1 > 0 ? list_size - 1 : 0) << "]" << std::endl;
+		std::cout << "[ERROR](Group::addObject)Index: " << index << " is out of range[0," << (list_size - 1 > 0 ? list_size - 1 : 0) << "]" << std::endl;
 		assert(0);
 	}
 	if (list[index] != nullptr)

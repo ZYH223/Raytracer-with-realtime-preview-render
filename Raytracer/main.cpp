@@ -105,6 +105,7 @@ int main(int argc, char *argv[]) {
 	int tessellationTheta = 10, tessellationPhi = 5;
 	bool gui = false, gouraud = false;
 	int max_bounces = 1; float cutoff_weight = EPSILON; bool shadows = false;
+	bool grid = false; int grid_nx = 1, grid_ny = 1, grid_nz = 1, grid_visualize = false;
 
 	// 以下用于调试程序时模拟输入参数
 	if (DEBUG) 
@@ -135,13 +136,17 @@ int main(int argc, char *argv[]) {
 			normal_file = new char[filename_buffer_length];
 			strcpy_s(normal_file, filename_buffer_length, "Output/normals4_05_2.tga");
 		}
-		gui = false;
+		gui = true;
 		tessellationTheta = 30;
 		tessellationPhi = 15;
 		gouraud = true;
 		max_bounces = 5;
 		cutoff_weight = 0.01f;
 		shadows = true;
+		//grid
+		grid = true;
+		grid_nx = 16; grid_ny = 16; grid_nz = 16;
+		grid_visualize = true;
 	}
 	else // 从控制台输入参数
 	{
@@ -154,6 +159,7 @@ int main(int argc, char *argv[]) {
 	if (output_mode)raytracer->setOutput(output_file, shade_back);
 	if (depth_mode)raytracer->setDepth(depth_file, depth_min, depth_max);
 	if (normal_mode)raytracer->setNormal(normal_file);
+	if (grid) raytracer->setGrid(grid_nx, grid_ny, grid_nz, grid_visualize);
 	if (DEBUG_LOG)raytracer->setDebugMode(1);
 	Sphere::SetTessellationParameters(tessellationTheta, tessellationPhi, gouraud);
 	if (gui)

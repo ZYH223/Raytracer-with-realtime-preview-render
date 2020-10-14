@@ -14,6 +14,7 @@ public:
 	//RayTracer(int width, int height, SceneParser* scene);
 	~RayTracer();
 	void initialize(int width, int height, SceneParser* scene, int max_bounces, float cutoff_weight, bool shadows);
+	void setGrid(int nx, int ny, int nz, bool grid_visualize);
 	void setOutput(char *output_file, bool shade_back);
 	void setDepth(char *depth_file, float depth_min, float depth_max);
 	void setNormal(char *normal_file);

@@ -45,6 +45,10 @@ bool Triangle::intersect(const Ray &r, Hit &h, float tmin, float tmax)// œ»”Î∆Ω√
 	return false;
 }
 
+void Triangle::insertIntoGrid(Grid* g, Matrix* m) {
+	
+}
+
 void Triangle::paint(void) 
 {
 	// shading

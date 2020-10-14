@@ -13,6 +13,7 @@ Grid::Grid(BoundingBox* bb, int nx, int ny, int nz)
 		for (int j = 0; j < ny; j++)
 		{
 			cells[i][j] = new bool[nz];
+			memset(cells[i][j], 0, sizeof(bool) * nz);
 		}
 	}
 }
@@ -39,7 +40,7 @@ bool Grid::GetCell(int x, int y, int z)
 {
 	if (x < 0 || x >= nx || y < 0 || y >= ny || z < 0 || z >= nz)
 	{
-		std::cout << "[WARNING]Grid::Grid Coordinate (" << x << "," << y << "," << z << ") out of range" << std::endl;
+		std::cout << "[WARNING](Grid::GetCell)Grid Coordinate (" << x << "," << y << "," << z << ") out of range" << std::endl;
 		return false;
 	}
 	return cells[x][y][z];
@@ -49,7 +50,7 @@ void Grid::SetCell(int x, int y, int z, bool opaque)
 {
 	if (x < 0 || x >= nx || y < 0 || y >= ny || z < 0 || z >= nz)
 	{
-		std::cout << "[WARNING]Grid::Grid Coordinate (" << x << "," << y << "," << z << ") out of range" << std::endl;
+		std::cout << "[WARNING](Grid::SetCell)Grid Coordinate (" << x << "," << y << "," << z << ") out of range" << std::endl;
 		return ;
 	}
 	cells[x][y][z] = opaque;
@@ -62,7 +63,7 @@ bool Grid::intersect(const Ray& r, Hit& h, float tmin, float tmax)
 	return false;
 }
 
-bool  Grid::intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3f& color)
+bool Grid::intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3f& color)
 {
 	// Unrealized
 	return false;
@@ -70,7 +71,7 @@ bool  Grid::intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3
 
 void  Grid::paint(void)
 {
-	std::cout << "[DEBUG]Grid::Opaqueness Array:" << std::endl;
+	std::cout << "[DEBUG](Grid::paint)Opaqueness Array:" << std::endl;
 	for (int i = 0; i < nx; i++)
 	{
 		for (int j = 0; j < ny; j++)
