@@ -47,7 +47,7 @@ RayTracer::~RayTracer()
 	if (grid != nullptr)delete grid;
 }
 
-void RayTracer::setGrid(int nx, int ny, int nz, bool grid_visualize)
+void RayTracer::setGrid(int nx, int ny, int nz, bool grid_enable)
 {
 	if (grid == nullptr) {
 		grid = new Grid(this->scene->getGroup()->getBoundingBox(), nx, ny, nz);
@@ -57,9 +57,9 @@ void RayTracer::setGrid(int nx, int ny, int nz, bool grid_visualize)
 	}
 
 	// for debugging and print log
-	if (grid_visualize && scene != nullptr) {
+	if (grid_enable && scene != nullptr) {
 		scene->getGroup()->insertIntoGrid(grid, nullptr);// The second param is not avaliable now
-		grid->paint();
+		//grid->print();
 	}
 }
 
@@ -102,6 +102,12 @@ void RayTracer::setDebugMode(int mode)
 	}
 }
 
+Grid* RayTracer::getGrid()
+{
+	return grid;
+}
+
+// this function was replaced by renderRayTracing
 void RayTracer::renderRayCast(void) 
 {
 	if (scene == nullptr)

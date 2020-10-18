@@ -107,9 +107,11 @@ void GLCanvas::display(GLFWwindow* window)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // Set the camera parameters
+  scene->getCamera()->glInit(WIDTH, HEIGHT);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   scene->getCamera()->glPlaceCamera();
+
 
   // ========================================================
   // DRAW AXES
@@ -177,10 +179,6 @@ void GLCanvas::display(GLFWwindow* window)
   glDisable(GL_LIGHTING);
   RayTree::paint();
   glEnable(GL_LIGHTING);
-
-  // Swap the back buffer with the front buffer to display
-  // the scene
-  glfwSwapBuffers(window);
 }
 
 // ========================================================
@@ -270,13 +268,10 @@ void GLCanvas::keyboard(GLFWwindow* window, int key, int scancode, int action, i
         // flip up & down
         double mousex, mousey;
         glfwGetCursorPos(window, &mousex, &mousey);
-        printf("mouse(%f, %f)\n", mousex, mousey);
-        //int i = (int)mousex, j = HEIGHT - (int)mousey;
+        //printf("mouse(%f, %f)\n", mousex, mousey);
         int max = (WIDTH > HEIGHT) ? WIDTH : HEIGHT;
         // map the pixel coordinates: (0,0) -> (width-1,height-1);
         //      to screenspace: (0.0,0.0) -> (1.0,1.0);
-        //float x = ((i + 0.5) - WIDTH / 2.0) / float(max) + 0.5;
-        //float y = ((j + 0.5) - HEIGHT / 2.0) / float(max) + 0.5;
         float x = mousex / WIDTH, y = (HEIGHT - mousey) / HEIGHT;
         printf("mouse(%f, %f)\n", x, y);
         RayTree::Activate();

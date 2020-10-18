@@ -19,6 +19,7 @@ public:
 	void setDepth(char *depth_file, float depth_min, float depth_max);
 	void setNormal(char *normal_file);
 	void setDebugMode(int mode);
+	Grid* getGrid();
 	void renderRayCast();
 	void renderRayTracing();
 	Vec3f traceRay(Ray& ray, float tmin, int bounces, float weight, float indexOfRefraction, Hit& hit) const;

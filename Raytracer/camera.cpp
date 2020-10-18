@@ -3,9 +3,9 @@
 
 void printCamera(Vec3f center, Vec3f dir, Vec3f up)
 {
-	cout << center << endl;
-	cout << dir << endl;
-	cout << up << endl;
+	std::cout << "\tCenter:" << center << endl;
+	cout << "\tDirection:" << dir << endl;
+	cout << "\tUp:" << up << endl;
 }
 
 void VerifyScreenCoordinate(Vec2f &point)
@@ -52,15 +52,15 @@ Ray OrthographicCamera::generateRay(Vec2f point)
 // crops the screen in the narrowest dimension.
 // ====================================================================
 
-void OrthographicCamera::glInit(int w, int h)
+void OrthographicCamera::glInit(int w, int h)// 设定正交相机可视范围[Epsilon, 1000]
 {
 	//printCamera(center, direction, up);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	if (w > h)
-		glOrtho(-size / 2.0, size / 2.0, -size * (float)h / (float)w / 2.0, size*(float)h / (float)w / 2.0, 0.5, 400.0);
+		glOrtho(-size / 2.0, size / 2.0, -size * (float)h / (float)w / 2.0, size*(float)h / (float)w / 2.0, EPSILON, 1000.0f);
 	else
-		glOrtho(-size * (float)w / (float)h / 2.0, size*(float)w / (float)h / 2.0, -size / 2.0, size / 2.0, 0.5, 400.0);
+		glOrtho(-size * (float)w / (float)h / 2.0, size*(float)w / (float)h / 2.0, -size / 2.0, size / 2.0, EPSILON, 1000.0f);
 }
 
 // ====================================================================
@@ -69,6 +69,7 @@ void OrthographicCamera::glInit(int w, int h)
 
 void OrthographicCamera::glPlaceCamera(void)
 {
+	//glMatrixMode(GL_PROJECTION);
 	//printCamera(center, direction, up);
 	glm::mat4 view = glm::mat4(1.0f);
 	/*view = glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f),
@@ -203,7 +204,7 @@ void PerspectiveCamera::glInit(int w, int h)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glm::mat4 projection = glm::mat4(1.0f);
-	projection = glm::perspective(fov, (float)w / (float)h, 0.5f, 40.0f);
+	projection = glm::perspective(fov, (float)w / (float)h, EPSILON, 1000.0f);
 	glMultMatrixf(glm::value_ptr(projection));
 	//gluPerspective(angle*180.0 / 3.14159, (float)w / float(h), 0.5, 40.0);
 }
@@ -214,6 +215,8 @@ void PerspectiveCamera::glInit(int w, int h)
 
 void PerspectiveCamera::glPlaceCamera(void)
 {
+	/*std::cout << "[DEBUG]PerspectiveCamera::glPlaceCamera " << std::endl;
+	printCamera(center, direction, up);*/
 	glm::mat4 view = glm::mat4(1.0f);
 	view = glm::lookAt(glm::vec3(center.x(), center.y(), center.z()),
 		glm::vec3(center.x() + direction.x(), center.y() + direction.y(), center.z() + direction.z()),

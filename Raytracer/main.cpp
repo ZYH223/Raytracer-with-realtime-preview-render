@@ -112,17 +112,17 @@ int main(int argc, char *argv[]) {
 	{
 		const int filename_buffer_length = 64;
 		input_file = new char[filename_buffer_length];
-		strcpy_s(input_file, filename_buffer_length, "Input/scene5_01_sphere.txt");
+		strcpy_s(input_file, filename_buffer_length, "Input/scene5_02_spheres.txt");
 		width = 200, height = 200;
 		if (DEBUG_LOG) 
 		{
 			width = 200, height = 200;
 		}
-		output_mode = true, depth_mode = false, normal_mode = false, shade_back = true;
+		output_mode = true, depth_mode = false, normal_mode = false, shade_back = false;
 		if (output_mode) 
 		{
 			output_file = new char[filename_buffer_length];
-			strcpy_s(output_file, filename_buffer_length, "Output/scene5_01.tga");
+			strcpy_s(output_file, filename_buffer_length, "Output/test.tga");
 		}
 		if (depth_mode) 
 		{
@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
 		shadows = true;
 		//grid
 		grid = true;
-		grid_nx = 16; grid_ny = 16; grid_nz = 16;
+		grid_nx = 15; grid_ny = 15; grid_nz = 15; 
 		grid_visualize = true;
 	}
 	else // 从控制台输入参数
@@ -159,13 +159,13 @@ int main(int argc, char *argv[]) {
 	if (output_mode)raytracer->setOutput(output_file, shade_back);
 	if (depth_mode)raytracer->setDepth(depth_file, depth_min, depth_max);
 	if (normal_mode)raytracer->setNormal(normal_file);
-	if (grid) raytracer->setGrid(grid_nx, grid_ny, grid_nz, grid_visualize);
+	if (grid) raytracer->setGrid(grid_nx, grid_ny, grid_nz, grid);
 	if (DEBUG_LOG)raytracer->setDebugMode(1);
 	Sphere::SetTessellationParameters(tessellationTheta, tessellationPhi, gouraud);
 	if (gui)
 	{
 		GLCanvas* canvas = new GLCanvas();
-		canvas->initialize(scene, rayTracerRender, rayTracerTracing, nullptr, false);
+		canvas->initialize(scene, rayTracerRender, rayTracerTracing, raytracer->getGrid(), grid_visualize);
 		delete canvas;
 	}
 	else
