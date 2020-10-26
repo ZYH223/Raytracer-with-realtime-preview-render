@@ -60,6 +60,23 @@ protected:
 	float indexOfRefraction;
 };
 
+class ColorMaterial :public Material {
+public:
+	ColorMaterial(const Vec3f& color) :Material(color) {}
+	~ColorMaterial() {}
+	Vec3f Shade(const Ray& ray, const Hit& hit, const Vec3f& dirToLight, const Vec3f& lightColor, const float& disToLight) const { return diffuseColor; }
+	Vec3f getSpecularColor() const { return Vec3f(0.0f, 0.0f, 0.0f); }
+	Vec3f getReflectColor() const { return Vec3f(0.0f, 0.0f, 0.0f); }
+	Vec3f getTransparentColor() const { return Vec3f(0.0f, 0.0f, 0.0f); }
+	float getIndexOfRefraction() const { return 0; }
+	void glSetMaterial(void) const {
+		glEnable(GL_COLOR_MATERIAL);
+		glColor3f(diffuseColor.r(), diffuseColor.g(), diffuseColor.b());
+		//glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
+		glDisable(GL_COLOR_MATERIAL);
+	}
+};
+
 // ====================================================================
 // ====================================================================
 

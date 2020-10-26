@@ -34,6 +34,7 @@ private:
 	bool normal_mode; char *normal_file;
 	Image *image_output, *image_depth, *image_normal;
 	int max_bounces; float cutoff_weight; bool shadows;
+	bool grid_visualize;
 	
 	bool DEBUG_LOG, DEBUG_RAY;
 };

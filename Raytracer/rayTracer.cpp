@@ -47,7 +47,7 @@ RayTracer::~RayTracer()
 	if (grid != nullptr)delete grid;
 }
 
-void RayTracer::setGrid(int nx, int ny, int nz, bool grid_enable)
+void RayTracer::setGrid(int nx, int ny, int nz, bool grid_visualize)
 {
 	if (grid == nullptr) {
 		grid = new Grid(this->scene->getGroup()->getBoundingBox(), nx, ny, nz);
@@ -57,9 +57,15 @@ void RayTracer::setGrid(int nx, int ny, int nz, bool grid_enable)
 	}
 
 	// for debugging and print log
-	if (grid_enable && scene != nullptr) {
+	if (grid_visualize && scene != nullptr) {
+		this->grid_visualize = grid_visualize;
 		scene->getGroup()->insertIntoGrid(grid, nullptr);// The second param is not avaliable now
 		//grid->print();
+		/*Vec3f dir(-1.0f, -0.5f, 1.0f);
+		dir.Normalize();
+		Ray r(Vec3f(0.5f, 0.5f, -0.5f), dir);
+		Hit h(FLT_MAX, nullptr, Vec3f());
+		grid->intersect(r, h, scene->getCamera()->getTMin(), FLT_MAX);*/
 	}
 }
 
@@ -339,8 +345,14 @@ void RayTracer::renderRayDebug(float x, float y)
 	Ray r = scene->getCamera()->generateRay(Vec2f(x, y));
 	Hit h(FLT_MAX, nullptr, Vec3f());
 	if (DEBUG_LOG)cout << "[DEBUG]RayTracer::renderRayDebug " << Vec3f(x, y, 0) << ":" << r << " ray debugging";
-	DEBUG_RAY = true; 
-	traceRay(r, scene->getCamera()->getTMin(), 0, 1.0f, 1.0f, h);
-	RayTree::SetMainSegment(r, 0, h.getT());
+	DEBUG_RAY = true;
+	if (grid_visualize) {
+		grid->intersect(r, h, scene->getCamera()->getTMin(), FLT_MAX);
+		RayTree::SetMainSegment(r, 0, FLT_MAX);
+	}
+	else {
+		traceRay(r, scene->getCamera()->getTMin(), 0, 1.0f, 1.0f, h);
+		RayTree::SetMainSegment(r, 0, h.getT());
+	}
 	DEBUG_RAY = false;
 }

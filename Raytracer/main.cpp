@@ -16,7 +16,8 @@ void handleParameter(
 	bool &diffuse_mode, bool &depth_mode, bool &normal_mode, bool &shade_back,
 	int &theta, int &phi,
 	bool &gui, bool &gouraud,
-	int &max_bounces, float &cutoff_weight, bool &shadows)
+	int &max_bounces, float &cutoff_weight, bool &shadows,
+	bool &grid, int &nx, int &ny, int &nz, bool &grid_visualize)
 {
 	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], "-input")) {
@@ -74,6 +75,18 @@ void handleParameter(
 			i++; assert(i < argc);
 			cutoff_weight = (float)atof(argv[i]);
 		}
+		else if (!strcmp(argv[i], "-grid")) {
+			grid = true;
+			i++; assert(i < argc);
+			nx = atoi(argv[i]);
+			i++; assert(i < argc);
+			ny = atoi(argv[i]);
+			i++; assert(i < argc);
+			nz = atoi(argv[i]);
+		}
+		else if (!strcmp(argv[i], "-visualize_grid")) {
+			grid_visualize = true;
+		}
 		else {
 			printf("whoops error with command line argument %d: '%s'\n", i, argv[i]);
 			assert(0);
@@ -105,7 +118,7 @@ int main(int argc, char *argv[]) {
 	int tessellationTheta = 10, tessellationPhi = 5;
 	bool gui = false, gouraud = false;
 	int max_bounces = 1; float cutoff_weight = EPSILON; bool shadows = false;
-	bool grid = false; int grid_nx = 1, grid_ny = 1, grid_nz = 1, grid_visualize = false;
+	bool grid = false, grid_visualize = false; int grid_nx = 1, grid_ny = 1, grid_nz = 1;
 
 	// 以下用于调试程序时模拟输入参数
 	if (DEBUG) 
@@ -145,12 +158,12 @@ int main(int argc, char *argv[]) {
 		shadows = true;
 		//grid
 		grid = true;
-		grid_nx = 15; grid_ny = 15; grid_nz = 15; 
+		grid_nx = 2; grid_ny = 2; grid_nz = 2; 
 		grid_visualize = true;
 	}
 	else // 从控制台输入参数
 	{
-		handleParameter(argc, argv, input_file, width, height, output_file, depth_file, depth_min, depth_max, normal_file, output_mode, depth_mode, normal_mode, shade_back, tessellationTheta, tessellationPhi, gui, gouraud, max_bounces, cutoff_weight, shadows);
+		handleParameter(argc, argv, input_file, width, height, output_file, depth_file, depth_min, depth_max, normal_file, output_mode, depth_mode, normal_mode, shade_back, tessellationTheta, tessellationPhi, gui, gouraud, max_bounces, cutoff_weight, shadows, grid, grid_nx, grid_ny, grid_nz, grid_visualize);
 	}
 
 	SceneParser *scene = new SceneParser(input_file);
