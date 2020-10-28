@@ -97,12 +97,12 @@ void handleParameter(
 void rayTracerRender()
 {
 	//RayTracer::getInstance().renderRayCast();
-	RayTracer::getInstance().renderRayTracing();
+	RayTracer::getInstance().render();
 }
 
 void rayTracerTracing(float x, float y)
 {
-	RayTracer::getInstance().renderRayDebug(x, y);
+	RayTracer::getInstance().renderDebug(x, y);
 }
 
 int main(int argc, char *argv[]) {
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 	{
 		const int filename_buffer_length = 64;
 		input_file = new char[filename_buffer_length];
-		strcpy_s(input_file, filename_buffer_length, "Input/scene5_02_spheres.txt");
+		strcpy_s(input_file, filename_buffer_length, "Input/scene5_09_bunny_mesh_40k.txt");
 		width = 200, height = 200;
 		if (DEBUG_LOG) 
 		{
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 		if (output_mode) 
 		{
 			output_file = new char[filename_buffer_length];
-			strcpy_s(output_file, filename_buffer_length, "Output/test.tga");
+			strcpy_s(output_file, filename_buffer_length, "Output/output5_09.tga");
 		}
 		if (depth_mode) 
 		{
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
 		shadows = true;
 		//grid
 		grid = true;
-		grid_nx = 2; grid_ny = 2; grid_nz = 2; 
+		grid_nx = 40; grid_ny = 40; grid_nz = 33;
 		grid_visualize = true;
 	}
 	else // 从控制台输入参数
@@ -172,7 +172,7 @@ int main(int argc, char *argv[]) {
 	if (output_mode)raytracer->setOutput(output_file, shade_back);
 	if (depth_mode)raytracer->setDepth(depth_file, depth_min, depth_max);
 	if (normal_mode)raytracer->setNormal(normal_file);
-	if (grid) raytracer->setGrid(grid_nx, grid_ny, grid_nz, grid);
+	if (grid) raytracer->setGrid(grid_nx, grid_ny, grid_nz, grid_visualize);
 	if (DEBUG_LOG)raytracer->setDebugMode(1);
 	Sphere::SetTessellationParameters(tessellationTheta, tessellationPhi, gouraud);
 	if (gui)

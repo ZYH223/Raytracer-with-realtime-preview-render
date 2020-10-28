@@ -10,12 +10,12 @@ public:
 		sign = Vec3f(dir.x() > 0.0f ? 1.0f : -1.0f, dir.y() > 0.0f ? 1.0f : -1.0f, dir.z() > 0.0f ? 1.0f : -1.0f);
 		tmin = t;
 	}
-	void setOrigin(float t1, float t2, int i, int j, int k, Vec3f next) {// next_x代表从起始点到x轴上下一格还需要的t
+	void setOrigin(float t1, float t2, int i, int j, int k, Vec3f next, int firstThrough) {// next_x代表从起始点到x轴上下一格还需要的t
 		tmin = t1; tmax = t2;
 		grid_i = i, grid_j = j, grid_k = k;
 		t_next = Vec3f(tmin + next.x(), tmin + next.y(), tmin + next.z());
-		//lastThrough = 0;
-		std::cout << grid_i << ' ' << grid_j << ' ' << grid_k << std::endl;
+		lastThrough = firstThrough;
+		//std::cout << grid_i << ' ' << grid_j << ' ' << grid_k << std::endl;
 	}
 	void setTMin(float t) { tmin = t; }
 	float getTMin() { return tmin; }
@@ -25,6 +25,7 @@ public:
 	int getK() { return grid_k; }
 	Vec3f getSign() { return sign; }
 	Vec3f getIncrements() { return increments; }
+	int getLastThrough() { return lastThrough; }
 
 	// Functional
 	void nextCell() {
@@ -34,18 +35,21 @@ public:
 				grid_i += (int)sign.x();
 				tmin = t_next.x();
 				t_next.Set(t_next.x() + increments.x(), t_next.y(), t_next.z());
+				lastThrough = sign.x() > 0 ? 2 : 1;
 			}
 			else if (t_next.x() - t_next.y() > EPSILON && t_next.z() - t_next.y() > EPSILON) {
 				grid_j += (int)sign.y();
 				tmin = t_next.y();
 				t_next.Set(t_next.x(), t_next.y() + increments.y(), t_next.z());
+				lastThrough = sign.y() > 0 ? 4 : 3;
 			}
 			else {
 				grid_k += (int)sign.z();
 				tmin = t_next.z();
 				t_next.Set(t_next.x(), t_next.y(), t_next.z() + increments.z());
+				lastThrough = sign.z() > 0 ? 6 : 5;
 			}
-			std::cout << grid_i << ' ' << grid_j << ' ' << grid_k << std::endl;
+			//std::cout << grid_i << ' ' << grid_j << ' ' << grid_k << std::endl;
 		}
 	}
 	int getNextThrough() {
@@ -58,12 +62,12 @@ public:
 		}
 		return nextThrough;
 	}
-	bool end() { return tmax - tmin < EPSILON; }
+	bool end() { return tmax - tmin < EPSILON; }// 这里存在问题，tmin累加n次逼近离开包围盒时，累计浮点误差会比较大，超过EPSILON，导致无法通过连续值判断是否已经达到出射面（判断点是否在面内本身就有误差），解决方案是配合离散的格点坐标
 private:
 	float tmin = EPSILON, tmax = FLT_MAX;
 	int grid_i = 0, grid_j = 0, grid_k = 0;
 	Vec3f t_next;
 	Vec3f increments;
 	Vec3f sign;
-	//int lastThrough = 0;
+	int lastThrough = 0;
 };

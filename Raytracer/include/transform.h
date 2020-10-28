@@ -9,6 +9,7 @@ public:
 	virtual bool intersect(const Ray &r, Hit &h, float tmin, float tmax);
 	//virtual bool intersectShadowRay(const Ray& r, Hit& h, float distanceToLight, Vec3f& color);
 	virtual void paint(void);
+	virtual void insertIntoGrid(Grid* g, Matrix* m);
 private:
 	Object3D* object;
 	Matrix matrix, inversedMatrix, transposedInversedMatrix;

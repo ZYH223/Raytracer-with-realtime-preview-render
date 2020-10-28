@@ -20,10 +20,13 @@ public:
 	void setNormal(char *normal_file);
 	void setDebugMode(int mode);
 	Grid* getGrid();
+
+	void render();
+	void renderDebug(float x, float y);
 	void renderRayCast();
 	void renderRayTracing();
+	void renderRayGrid();
 	Vec3f traceRay(Ray& ray, float tmin, int bounces, float weight, float indexOfRefraction, Hit& hit) const;
-	void renderRayDebug(float x, float y);
 private:
 	RayTracer();
 	int width, height;

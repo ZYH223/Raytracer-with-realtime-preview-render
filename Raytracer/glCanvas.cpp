@@ -105,12 +105,16 @@ void GLCanvas::display(GLFWwindow* window)
   Vec3f bgColor = scene->getBackgroundColor();
   glClearColor(bgColor.x(), bgColor.y(), bgColor.z(), 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
   // Set the camera parameters
   scene->getCamera()->glInit(WIDTH, HEIGHT);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   scene->getCamera()->glPlaceCamera();
+  /*glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glOrtho(-5, 5, -5, 5, -10000, 10000);
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();*/
 
 
   // ========================================================
@@ -146,6 +150,14 @@ void GLCanvas::display(GLFWwindow* window)
     // Draw the scene once
     SPECULAR_FIX_WHICH_PASS = 0;
     scene->getGroup()->paint();
+    /*float w = 600.0f, h = 600.0f;
+    glBegin(GL_QUADS);
+    glNormal3f(0.0f, 0.0f, -1.0f);
+    glVertex3f(-w, -h, -1.0f);
+    glVertex3f(-w, +h, -1.0f);
+    glVertex3f(+w, +h, -1.0f);
+    glVertex3f(+w, -h, -1.0f);
+    glEnd();*/
 
 #else
 

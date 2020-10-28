@@ -52,15 +52,15 @@ Ray OrthographicCamera::generateRay(Vec2f point)
 // crops the screen in the narrowest dimension.
 // ====================================================================
 
-void OrthographicCamera::glInit(int w, int h)// 设定正交相机可视范围[Epsilon, 1000]
+void OrthographicCamera::glInit(int w, int h)// 设定正交相机可视范围[Epsilon, 100]
 {
 	//printCamera(center, direction, up);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	if (w > h)
-		glOrtho(-size / 2.0, size / 2.0, -size * (float)h / (float)w / 2.0, size*(float)h / (float)w / 2.0, EPSILON, 1000.0f);
+		glOrtho(-size / 2.0, size / 2.0, -size * (float)h / (float)w / 2.0, size*(float)h / (float)w / 2.0, EPSILON, 100.0f);
 	else
-		glOrtho(-size * (float)w / (float)h / 2.0, size*(float)w / (float)h / 2.0, -size / 2.0, size / 2.0, EPSILON, 1000.0f);
+		glOrtho(-size * (float)w / (float)h / 2.0, size*(float)w / (float)h / 2.0, -size / 2.0, size / 2.0, EPSILON, 100.0f);
 }
 
 // ====================================================================
@@ -204,7 +204,7 @@ void PerspectiveCamera::glInit(int w, int h)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glm::mat4 projection = glm::mat4(1.0f);
-	projection = glm::perspective(fov, (float)w / (float)h, EPSILON, 1000.0f);
+	projection = glm::perspective(fov, (float)w / (float)h, 0.5f, 100.0f);
 	glMultMatrixf(glm::value_ptr(projection));
 	//gluPerspective(angle*180.0 / 3.14159, (float)w / float(h), 0.5, 40.0);
 }

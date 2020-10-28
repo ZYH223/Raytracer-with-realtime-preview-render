@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #define deg2rad(x) ((M_PI * x) / 180.0f)
+#include "matrix.h"
 #include "sphere.h"
 float Sphere::theta, Sphere::phi;// data for tessellation
 bool Sphere::gouraud;
@@ -82,8 +83,10 @@ bool Sphere::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 #pragma endregion
 }
 
-void Sphere::insertIntoGrid(Grid* g, Matrix* m)
+void Sphere::insertIntoGrid(Grid *g, Matrix *m)
 {
+	Matrix inversed = Matrix(*m);
+	if (m != nullptr) inversed.Inverse(EPSILON);
 	Vec3f length = g->GetLength();
 	float lenx = length.x(), leny = length.y(), lenz = length.z();
 	// 怎样高效地指出占据的网格？（遍历代价有点高）
@@ -96,8 +99,10 @@ void Sphere::insertIntoGrid(Grid* g, Matrix* m)
 		{
 			for (int k = 0; k < mz; k++)
 			{
-				Vec3f cellCenter((i - mx/2.0f + 0.5f) * lenx, (j - my/2.0f + 0.5f) * leny, (k - mz/2.0f + 0.5f) * lenz);// 计算当前单元格与球心的距离
-				if ((cellCenter - center).Length() - (radius+length.Length()/2) < EPSILON)g->SetCell(i, j, k, true);
+				//Vec3f cellCenter((i - mx/2.0f + 0.5f) * lenx, (j - my/2.0f + 0.5f) * leny, (k - mz/2.0f + 0.5f) * lenz);
+				Vec3f cellcenter = g->GetCoordinate(i, j, k);
+				if (m != nullptr) inversed.Transform(cellcenter);// 将原始空间的cellcenter转换到transform内部空间
+				if ((cellcenter - center).Length() - (radius+length.Length()/2) < EPSILON)g->AddToCell(i, j, k, this);// 比较当前单元格与球心的距离
 			}
 		}
 	}

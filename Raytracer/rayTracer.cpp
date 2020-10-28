@@ -1,5 +1,6 @@
 #include "rayTracer.h"
 #include "rayTree.h"
+//#include "matrix.h"
 #include <iomanip>
 
 RayTracer::RayTracer()
@@ -12,6 +13,7 @@ RayTracer::RayTracer()
 	normal_mode = false, normal_file = nullptr;
 	image_output = nullptr, image_depth = nullptr, image_normal = nullptr;
 	max_bounces = 10, cutoff_weight = 10.0f, shadows = true;
+	grid_visualize = false;
 	DEBUG_LOG = false; DEBUG_RAY = false;
 }
 
@@ -59,13 +61,16 @@ void RayTracer::setGrid(int nx, int ny, int nz, bool grid_visualize)
 	// for debugging and print log
 	if (grid_visualize && scene != nullptr) {
 		this->grid_visualize = grid_visualize;
+		/*float data[16] = {
+			1.0f, 0.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+		};*/
+		//Matrix* matrix = new Matrix(data);
 		scene->getGroup()->insertIntoGrid(grid, nullptr);// The second param is not avaliable now
+		//delete matrix;
 		//grid->print();
-		/*Vec3f dir(-1.0f, -0.5f, 1.0f);
-		dir.Normalize();
-		Ray r(Vec3f(0.5f, 0.5f, -0.5f), dir);
-		Hit h(FLT_MAX, nullptr, Vec3f());
-		grid->intersect(r, h, scene->getCamera()->getTMin(), FLT_MAX);*/
 	}
 }
 
@@ -111,6 +116,87 @@ void RayTracer::setDebugMode(int mode)
 Grid* RayTracer::getGrid()
 {
 	return grid;
+}
+
+void  RayTracer::render()
+{
+	if (grid_visualize) {// 网格渲染模式
+		renderRayGrid();
+	}
+	else {
+		renderRayTracing();
+	}
+}
+
+void RayTracer::renderRayGrid(void)
+{
+	if (scene == nullptr)
+	{
+		cout << "[ERROR](RayTracer::renderRayCast) Scene hasn't been specified" << endl;
+		return;
+	}
+	if (output_mode || depth_mode || normal_mode)// 必须保证指定至少一种渲染模式
+	{
+		for (int i = 0; i < width; i++)
+		{
+			for (int j = 0; j < height; j++)
+			{
+				Vec3f color = scene->getBackgroundColor(), normal = Vec3f();// 设置环境光
+				Ray r = scene->getCamera()->generateRay(Vec2f(i / (float)width, j / (float)height));
+				Hit h(FLT_MAX, nullptr, Vec3f());
+				if (DEBUG_LOG)cout << "[DEBUG]RayTracer::renderRayCast " << Vec3f((float)i, (float)j, 0) << ":" << r << " intersect with ";
+				if (grid->intersect(r, h, scene->getCamera()->getTMin(), FLT_MAX))
+				{
+					if (!DEBUG_LOG)cout << "\r" << fixed << setprecision(2) << 100.0f * (i * width + j + 1) / (width * height) << "%";
+					if (DEBUG_LOG)cout << h.getIntersectionPoint() << " and return " << h << endl;
+					assert(h.getMaterial() != nullptr);
+
+					// shade_back
+					normal = h.getNormal();
+					if (shade_back)
+					{
+						if (r.getDirection().Dot3(normal) > 0)normal.Negate();
+					}
+					// 计算颜色（无阴影）
+					color = scene->getAmbientLight() * h.getMaterial()->getDiffuseColor();// 计算环境光
+					int numLights = scene->getNumLights();
+					for (int i = 0; i < numLights; i++)// 计算每个光源的漫反射分量
+					{
+						Light* light = scene->getLight(i);
+						Vec3f p = h.getIntersectionPoint(), dir, col;
+						float dis = 0.0f;
+						light->getIllumination(p, dir, col, dis);
+						color += h.getMaterial()->Shade(r, h, dir, col, dis);
+						if (color.r() > 1.0f || color.g() > 1.0f || color.b() > 1.0f)cout << "[WARNING](RayTracer::renderRayCast) color at pixel(" << i << "," << j << ") is out of range" << endl;
+						if (DEBUG_LOG)cout << "Color:" << color << endl;
+					}
+				}
+				else
+				{
+					if (DEBUG_LOG)cout << "nothing" << endl;
+				}
+				if (output_mode)
+				{
+					image_output->SetPixel(i, j, color);
+				}
+				if (depth_mode)
+				{
+					float depth = 1.0f - (h.getT() - depth_min) / (depth_max - depth_min);
+					image_depth->SetPixel(i, j, Vec3f(depth, depth, depth));
+				}
+				if (normal_mode)
+				{
+					Vec3f n = normal;
+					n.Set(fabs(n.r()), fabs(n.g()), fabs(n.b()));
+					image_normal->SetPixel(i, j, n);
+				}
+			}
+		}
+		if (output_mode)image_output->SaveTGA(output_file);
+		if (depth_mode)image_depth->SaveTGA(depth_file);
+		if (normal_mode)image_normal->SaveTGA(normal_file);
+	}
+	else cout << "[WARNING](RayTracer::renderRayCast) No render mode is specified(output,depth,normal)" << endl;
 }
 
 // this function was replaced by renderRayTracing
@@ -306,8 +392,8 @@ void RayTracer::renderRayTracing(void)
 				/*if (i == 0 && j == 15) {
 					cout << "pause" << endl;
 				}*/
-				if(!DEBUG_LOG)cout << "\r" << fixed << setprecision(2) << 100.0f * (i * width + j + 1) / (width * height) << "%";
-				Vec3f color(0.0f, 0.0f, 0.0f);// 设置环境光
+				if (!DEBUG_LOG)cout << "\r" << fixed << setprecision(2) << 100.0f * (i * width + j + 1) / (width * height) << "%";
+				Vec3f color(0.0f, 0.0f, 0.0f);
 				Ray r = scene->getCamera()->generateRay(Vec2f(i / (float)width, j / (float)height));
 				Hit h(FLT_MAX, nullptr, Vec3f());
 				if (DEBUG_LOG)cout << Vec3f((float)i, (float)j, 0) << ":" << r << " return ";
@@ -336,11 +422,12 @@ void RayTracer::renderRayTracing(void)
 		if (output_mode)image_output->SaveTGA(output_file);
 		if (depth_mode)image_depth->SaveTGA(depth_file);
 		if (normal_mode)image_normal->SaveTGA(normal_file);
+		
 	}
 	else cout << "[WARNING](RayTracer::renderRayTracing) No render mode is specified(output,depth,normal)" << endl;
 }
 
-void RayTracer::renderRayDebug(float x, float y)
+void RayTracer::renderDebug(float x, float y)
 {
 	Ray r = scene->getCamera()->generateRay(Vec2f(x, y));
 	Hit h(FLT_MAX, nullptr, Vec3f());

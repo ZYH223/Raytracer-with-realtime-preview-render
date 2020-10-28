@@ -100,3 +100,14 @@ void Transform::paint(void)
 	object->paint();
 	glPopMatrix();
 }
+
+void Transform::insertIntoGrid(Grid* g, Matrix* m)
+{
+	if (m == nullptr) {
+		object->insertIntoGrid(g, &matrix);
+	}
+	else {
+		Matrix new_matrix = (*m) * matrix;
+		object->insertIntoGrid(g, &new_matrix);
+	}
+}

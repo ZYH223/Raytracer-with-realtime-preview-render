@@ -22,10 +22,12 @@ public:
   // CONSTRUCTOR
   Object3DVector() {
     num_objects = 0;
-    size = 10;
-    objects = new (Object3D*)[size];
+    size = 0;
+    objects = nullptr;
+    /*size = 10;
+    objects = new Object3D*[size];
     for (int i = 0; i < size; i++)
-      objects[i] = NULL;
+      objects[i] = NULL;*/
   }
 
   // DESTRUCTOR
@@ -33,6 +35,8 @@ public:
     // don't delete the objects, just the array to store the pointers
     delete [] objects;
   }
+
+  int getSize() const { return num_objects; }
 
   // ACCESSORS
   int getNumObjects() { return num_objects; }
@@ -45,18 +49,21 @@ public:
   // MODIFIERS
   void addObject(Object3D *o) {
     assert (o != NULL);
+    //cout << num_objects << ':' << size << endl;
     if (size == num_objects) {
       // double the size of the array and copy the pointers
-      int new_size = size * 2;
-      Object3D **new_objects = new (Object3D*)[new_size];
-      int i;
-      for (i = 0; i < size; i++) {
-	new_objects[i] = objects[i];
+      int new_size = size * 2 + 1;
+      Object3D **new_objects = new Object3D*[new_size];
+      if (objects != nullptr) {
+          int i;
+          for (i = 0; i < size; i++) {
+              new_objects[i] = objects[i];
+          }
+          for (i = size; i < new_size; i++) {
+              new_objects[i] = NULL;
+          }
+          delete[] objects;
       }
-      for (i = size; i < 2*size; i++) {
-	new_objects[i] = NULL;
-      }
-      delete [] objects;
       objects = new_objects;
       size = new_size;
     }

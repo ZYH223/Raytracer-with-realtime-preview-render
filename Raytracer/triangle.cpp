@@ -1,3 +1,4 @@
+#include "matrix.h"
 #include "triangle.h"
 
 Triangle::Triangle(Vec3f &a, Vec3f &b, Vec3f &c, Material *m)
@@ -46,7 +47,31 @@ bool Triangle::intersect(const Ray &r, Hit &h, float tmin, float tmax)// ÏÈÓëÆ½Ã
 }
 
 void Triangle::insertIntoGrid(Grid* g, Matrix* m) {
-	
+	BoundingBox transformed(bb->getMin(), bb->getMax());
+	Vec3f min = bb->getMin(), max = bb->getMax();
+	float nminx = min.x(), nminy = min.y(), nminz = min.z(), nmaxx = max.x(), nmaxy = max.y(), nmaxz = max.z();
+	Vec4f vertexes[] = {
+		Vec4f(min.x(), min.y(), min.z(), 1.0f),
+		Vec4f(min.x(), min.y(), max.z(), 1.0f),
+		Vec4f(min.x(), max.y(), min.z(), 1.0f),
+		Vec4f(min.x(), max.y(), max.z(), 1.0f),
+		Vec4f(max.x(), min.y(), min.z(), 1.0f),
+		Vec4f(max.x(), min.y(), max.z(), 1.0f),
+		Vec4f(max.x(), max.y(), min.z(), 1.0f),
+		Vec4f(max.x(), max.y(), max.z(), 1.0f)
+	};
+	for (int i = 0; i < 8; i++)
+	{
+		m->Transform(vertexes[i]);
+		nminx = nminx > vertexes[i].x() ? vertexes[i].x() : nminx;
+		nminy = nminy > vertexes[i].y() ? vertexes[i].y() : nminy;
+		nminz = nminz > vertexes[i].z() ? vertexes[i].z() : nminz;
+		nmaxx = nmaxx < vertexes[i].x() ? vertexes[i].x() : nmaxx;
+		nmaxy = nmaxy < vertexes[i].y() ? vertexes[i].y() : nmaxy;
+		nmaxz = nmaxz < vertexes[i].z() ? vertexes[i].z() : nmaxz;
+	}
+	transformed.Set(Vec3f(nminx, nminy, nminz), Vec3f(nmaxx, nmaxy, nmaxz));
+	g->insertBoundingBox(&transformed, this);
 }
 
 void Triangle::paint(void) 
