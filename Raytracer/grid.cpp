@@ -3,6 +3,10 @@
 
 Grid::Grid(BoundingBox* bb, int nx, int ny, int nz)
 {
+	if (nx <= 0 || ny <= 0 || nz <= 0){
+		std::cout << "[WARNING]Grid::Grid Unlawful size of grid(" << nx << "," << ny << "," << nz << ")" << std::endl;
+		return;
+	}
 	this->bb = bb;
 	this->nx = nx;
 	this->ny = ny;
@@ -104,19 +108,23 @@ Vec3f Grid::GetCoordinate(int x, int y, int z)
 
 void Grid::insertBoundingBox(BoundingBox *target, Object3D *object)
 {
+	// 位于左开右闭的实数区间[i*length,,(i+1)*length)中的点被认为是第i个单元格内部的点，但是为了保证组成整个包围盒的连续n个区间的综合是一个闭区间，需要将n*length处的点单独纳入下标n-1的格子内
 	float grid_x = nx * ((target->getMin().x() - bb->getMin().x()) / (bb->getMax().x() - bb->getMin().x())),
 		grid_y = ny * ((target->getMin().y() - bb->getMin().y()) / (bb->getMax().y() - bb->getMin().y())),
 		grid_z = nz * ((target->getMin().z() - bb->getMin().z()) / (bb->getMax().z() - bb->getMin().z()));
-	int i0 = (int)grid_x, j0 = (int)grid_y, k0 = (int)grid_z; 
+	int i0 = (int)grid_x, j0 = (int)grid_y, k0 = (int)grid_z;
+	if (i0 == nx) i0--; if (j0 == ny)j0--; if (k0 == nz)k0--;
 	grid_x = nx * ((target->getMax().x() - bb->getMin().x()) / (bb->getMax().x() - bb->getMin().x())),
 	grid_y = ny * ((target->getMax().y() - bb->getMin().y()) / (bb->getMax().y() - bb->getMin().y())),
 	grid_z = nz * ((target->getMax().z() - bb->getMin().z()) / (bb->getMax().z() - bb->getMin().z()));
 	int in = (int)grid_x, jn = (int)grid_y, kn = (int)grid_z;
-	for (int i = i0; i <= in && i < nx; i++) {
-		for (int j = j0; j <= jn && j < ny; j++) {
-			for (int k = k0; k <= kn && k < nz; k++) {
-				//cout << i << ',' << j << ',' << k << ' ';
+	if (in == nx) in--; if (jn == ny)jn--; if (kn == nz)kn--;
+	for (int i = i0; i <= in; i++) {
+		for (int j = j0; j <= jn; j++) {
+			for (int k = k0; k <= kn; k++) {
+				//cout << i << ',' << j << ',' << k << ' ' << endl;
 				cells[i][j][k].addObject(object);
+				//cells[i < nx ? i : nx - 1][j < ny ? j : ny - 1][k < nz ? k : nz - 1].addObject(object);
 			}
 		}
 	}

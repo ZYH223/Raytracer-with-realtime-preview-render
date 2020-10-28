@@ -85,13 +85,16 @@ bool Sphere::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 
 void Sphere::insertIntoGrid(Grid *g, Matrix *m)
 {
+	Vec3f length = g->GetLength();
 	Matrix inversed;
 	if (m != nullptr) {
 		inversed = Matrix(*m);
 		inversed.Inverse(EPSILON);
+		Vec4f l(length, 0.0f);// length是一个方向向量不是点向量
+		inversed.Transform(l);
+		length.Set(l.x(), l.y(), l.z());// 原始空间和变换空间中轴向单元格的长度不同，需要经过变换
 	}
-	Vec3f length = g->GetLength();
-	float lenx = length.x(), leny = length.y(), lenz = length.z();
+	//float lenx = length.x(), leny = length.y(), lenz = length.z();
 	// 怎样高效地指出占据的网格？（遍历代价有点高）
 	int mx = g->CellNumX(), my = g->CellNumY(), mz = g->CellNumZ();
 	//float mx = (floor(radius / lenx) + 0.5f) * lenx, my = (floor(radius / leny) + 0.5f) * leny, mz = (floor(radius / lenz) + 0.5f) * lenz;

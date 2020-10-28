@@ -15,7 +15,7 @@ Transform::Transform(Matrix& m, Object3D* o)
 	// 计算变换后的boundingbox
 	bb = new BoundingBox(*(object->getBoundingBox()));
 	Vec3f min = bb->getMin(), max = bb->getMax();
-	float nminx = min.x(), nminy = min.y(), nminz = min.z(), nmaxx = max.x(), nmaxy = max.y(), nmaxz = max.z();
+	float nminx = FLT_MAX, nminy = FLT_MAX, nminz = FLT_MAX, nmaxx = -FLT_MAX, nmaxy = -FLT_MAX, nmaxz = -FLT_MAX;
 	Vec4f vertexes[] = {
 		Vec4f(min.x(), min.y(), min.z(), 1.0f),
 		Vec4f(min.x(), min.y(), max.z(), 1.0f),

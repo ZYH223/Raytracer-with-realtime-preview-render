@@ -3,7 +3,7 @@
 #include "rayTracer.h"
 #include "Sphere.h"
 using namespace std;
-const bool DEBUG = true;
+const bool DEBUG = false;
 const bool DEBUG_LOG = false;
 
 void handleParameter(
@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 	{
 		const int filename_buffer_length = 64;
 		input_file = new char[filename_buffer_length];
-		strcpy_s(input_file, filename_buffer_length, "Input/scene5_05_sphere_triangles.txt");
+		strcpy_s(input_file, filename_buffer_length, "Input/scene5_12_nested_transformations.txt");
 		width = 200, height = 200;
 		if (DEBUG_LOG) 
 		{
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 		if (output_mode) 
 		{
 			output_file = new char[filename_buffer_length];
-			strcpy_s(output_file, filename_buffer_length, "Output/test.tga");
+			strcpy_s(output_file, filename_buffer_length, "Output/Test3.tga");
 		}
 		if (depth_mode) 
 		{
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
 		shadows = true;
 		//grid
 		grid = true;
-		grid_nx = 20; grid_ny = 20; grid_nz = 10;
+		grid_nx = 30; grid_ny = 30; grid_nz = 30;
 		grid_visualize = true;
 	}
 	else // 从控制台输入参数
