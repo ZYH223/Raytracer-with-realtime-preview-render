@@ -85,8 +85,11 @@ bool Sphere::intersect(const Ray &r, Hit &h, float tmin, float tmax)
 
 void Sphere::insertIntoGrid(Grid *g, Matrix *m)
 {
-	Matrix inversed = Matrix(*m);
-	if (m != nullptr) inversed.Inverse(EPSILON);
+	Matrix inversed;
+	if (m != nullptr) {
+		inversed = Matrix(*m);
+		inversed.Inverse(EPSILON);
+	}
 	Vec3f length = g->GetLength();
 	float lenx = length.x(), leny = length.y(), lenz = length.z();
 	// 怎样高效地指出占据的网格？（遍历代价有点高）

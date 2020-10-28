@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
 	{
 		const int filename_buffer_length = 64;
 		input_file = new char[filename_buffer_length];
-		strcpy_s(input_file, filename_buffer_length, "Input/scene5_09_bunny_mesh_40k.txt");
+		strcpy_s(input_file, filename_buffer_length, "Input/scene5_05_sphere_triangles.txt");
 		width = 200, height = 200;
 		if (DEBUG_LOG) 
 		{
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
 		if (output_mode) 
 		{
 			output_file = new char[filename_buffer_length];
-			strcpy_s(output_file, filename_buffer_length, "Output/output5_09.tga");
+			strcpy_s(output_file, filename_buffer_length, "Output/test.tga");
 		}
 		if (depth_mode) 
 		{
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
 		shadows = true;
 		//grid
 		grid = true;
-		grid_nx = 40; grid_ny = 40; grid_nz = 33;
+		grid_nx = 20; grid_ny = 20; grid_nz = 10;
 		grid_visualize = true;
 	}
 	else // 从控制台输入参数
